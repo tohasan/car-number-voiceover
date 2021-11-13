@@ -13,6 +13,7 @@ variety of pronunciations.
 ### Car Number Generator
 
 ```shell
+$ yarn
 $ yarn generate:numbers --pattern "[L, D]" --definitions "L=[A, B]" "D=[0-3]"
 ```
 
