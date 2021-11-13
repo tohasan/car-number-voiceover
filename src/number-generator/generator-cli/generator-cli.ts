@@ -7,7 +7,7 @@ export class GeneratorCli {
 
     parse(commandLineArgs: string[]): CliArguments {
         return yargs(hideBin(commandLineArgs))
-            .usage('Usage: $0 --pattern <pattern> --definitions <def 1> [<def i>] [--output <filename>]')
+            .usage('Usage: $0 --pattern "<pattern>" --definitions "<def 1>" ["<def i>"] [--output "<filename>"]')
             .epilogue('Copyright (c) tohasan, Car Number Generator, 2021. All Rights Reserved.')
             .option('pattern', {
                 alias: 'p',

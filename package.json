@@ -12,6 +12,7 @@
     },
     "scripts": {
         "start": "ts-node src/number-generator/index.ts",
+        "generate:numbers": "ts-node src/number-generator/index.ts",
         "start:bin": "node dist/index.js",
         "lint": "yarn lint:code .",
         "test": "jest --coverage",
