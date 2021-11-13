@@ -34,5 +34,12 @@ describe('PatternParser', () => {
             expect(pos7).toEqual(spaces);
             expect(pos8).toEqual(regions);
         });
+
+        it('should throw an exception if a pattern has unresolved definition', () => {
+            const pattern = '[D, L, D]';
+            const definitions = ['D=[0-9]'];
+
+            expect(() => parser.parse(pattern, definitions)).toThrow('Can not find a definition for: \'L\'');
+        });
     });
 });

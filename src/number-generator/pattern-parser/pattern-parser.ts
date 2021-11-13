@@ -17,7 +17,7 @@ export class PatternParser {
                 return definitionMap.get(pos)!;
             }
 
-            throw new AppError(`Can not find a definition for the position: '${pos}'`);
+            throw new AppError(`Can not find a definition for: '${pos}'`);
         });
     }
 
