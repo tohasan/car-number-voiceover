@@ -4,6 +4,7 @@ module.exports = {
         'src/**/*.ts'
     ],
     coveragePathIgnorePatterns: [
+        'src/number-generator/index.ts',
         '.*\\.d\\.ts'
     ],
     testMatch: [

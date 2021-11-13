@@ -8,13 +8,13 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "start": "ts-node src/index.ts",
+        "start": "ts-node src/number-generator/index.ts",
         "start:bin": "node dist/index.js",
         "lint": "yarn lint:code .",
         "test": "jest --coverage",
         "test:ci": "yarn test --ci",
         "compile": "tsc",
-        "build": "ncc build src/index.ts -m -o dist",
+        "build": "ncc build src/number-generator/index.ts -m -o dist/number-generator",
         "lint:code": "eslint --ext .js,.ts"
     },
     "husky": {

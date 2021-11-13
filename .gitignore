@@ -1,4 +1,9 @@
 .idea/
 node_modules/
 tmp/
+coverage/
+output/
+dist/
+out-tsc/
+
 *.log
