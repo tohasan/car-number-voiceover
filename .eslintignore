@@ -1,0 +1,7 @@
+out-tsc/**/*
+dist/**/*
+bin/**/*
+coverage/**/*
+tmp/**/*
+.eslintrc.js
+jest.config.js

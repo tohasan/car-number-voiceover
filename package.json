@@ -1,0 +1,50 @@
+{
+    "name": "car-number-voiceover",
+    "version": "1.0.0",
+    "description": "Translates car numbers into multifarious variants of pronounciation.",
+    "main": "dist/index.js",
+    "repository": "https://github.com/tohasan/car-number-voiceover",
+    "author": "Anton Kalashnikov <tohasan@yandex.ru>",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+        "start": "ts-node src/index.ts",
+        "start:bin": "node dist/index.js",
+        "lint": "yarn lint:code .",
+        "test": "jest --coverage",
+        "test:ci": "yarn test --ci",
+        "compile": "tsc",
+        "build": "ncc build src/index.ts -m -o dist",
+        "lint:code": "eslint --ext .js,.ts"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged",
+            "pre-push": "yarn lint && yarn test && yarn build"
+        }
+    },
+    "lint-staged": {
+        "*.{ts,tsx}": [
+            "yarn lint",
+            "git add"
+        ]
+    },
+    "dependencies": {
+        "yargs": "17.1.1"
+    },
+    "devDependencies": {
+        "@eigenspace/codestyle": "3.0.4",
+        "@types/jest": "22.2.2",
+        "@types/node": "16.10.1",
+        "@types/yargs": "17.0.3",
+        "@vercel/ncc": "0.27.0",
+        "eslint": "7.22.0",
+        "eslint-plugin-eigenspace-script": "0.1.4",
+        "husky": "4.3.8",
+        "jest": "24.7.1",
+        "lint-staged": "11.1.2",
+        "ts-jest": "24.0.2",
+        "ts-node": "8.6.2",
+        "typescript": "4.4.2"
+    }
+}
