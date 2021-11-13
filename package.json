@@ -1,5 +1,5 @@
 {
-    "name": "car-number-voiceover",
+    "name": "@tohasan/car-number-voiceover",
     "version": "1.0.0",
     "description": "Translates car numbers into multifarious variants of pronounciation.",
     "main": "dist/index.js",
@@ -7,6 +7,9 @@
     "author": "Anton Kalashnikov <tohasan@yandex.ru>",
     "license": "MIT",
     "private": false,
+    "bin": {
+        "generate-numbers": "number-generator/index.js"
+    },
     "scripts": {
         "start": "ts-node src/number-generator/index.ts",
         "start:bin": "node dist/index.js",
