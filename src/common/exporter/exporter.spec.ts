@@ -1,6 +1,6 @@
 import { Exporter } from './exporter';
 import * as fs from 'fs';
-import { Filename } from '../entities/filename';
+import { Filename } from '../../number-generator/entities/filename';
 
 describe('Exporter', () => {
     const filename = `${__dirname}/numbers.txt`;

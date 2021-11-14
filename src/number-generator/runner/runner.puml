@@ -1,0 +1,7 @@
+@startuml
+
+class Runner {
+    + run(args: string[]): void
+}
+
+@enduml

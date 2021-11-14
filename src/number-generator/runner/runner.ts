@@ -1,7 +1,7 @@
 import { GeneratorCli } from '../generator-cli/generator-cli';
 import { Generator } from '../generator/generator';
 import { PatternParser } from '../pattern-parser/pattern-parser';
-import { Exporter } from '../exporter/exporter';
+import { Exporter } from '../../common/exporter/exporter';
 
 export class Runner {
     private readonly cli = new GeneratorCli();

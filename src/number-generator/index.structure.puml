@@ -1,0 +1,16 @@
+@startuml
+
+skinparam linetype ortho
+
+!include runner/runner.puml
+!include generator-cli/generator-cli.puml
+!include pattern-parser/pattern-parser.puml
+!include generator/generator.puml
+!include ../common/exporter/exporter.puml
+
+Runner o-- GeneratorCli
+Runner o-- PatternParser
+Runner o-- Generator
+Runner o-- Exporter
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+
+class PatternParser {
+    + parse(pattern: string, definitionStrings: string[]): Facet[]
+}
+
+@enduml
+
+@startuml(id=PatternParserPrivate)
+
+!include pattern-parser.puml
+
+class PatternParser {
+    - parseDefinition(definitionString: string): Definition
+    - parseFacet(facetStr: string): FacetValue[]
+    - parseFacetRange(facetRangeStr: string): FacetValue[]
+}
+
+@enduml

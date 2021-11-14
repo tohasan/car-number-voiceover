@@ -1,0 +1,17 @@
+@startuml
+
+class Generator {
+    + generate(facets: Facet[]): CarNumber[]
+}
+
+@enduml
+
+@startuml(id=GeneratorPrivate)
+
+!include generator.puml
+
+class Generator {
+    - cartesianProduct(facets: Facet[]): DisjointCardNumber[]
+}
+
+@enduml

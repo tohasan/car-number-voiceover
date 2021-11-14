@@ -1,0 +1,7 @@
+@startuml
+
+class GeneratorCli {
+    + parse(commandLineArgs: string[]): CliArguments
+}
+
+@enduml

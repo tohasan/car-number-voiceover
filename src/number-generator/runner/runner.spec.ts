@@ -17,8 +17,8 @@ describe('Runner', () => {
             const outputFile = `${outputDir}/numbers.txt`;
             const pattern = '[L, D, D, D, L, L, S, R]';
             const definitions = [
-                'L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]',
-                'D=[0-9]',
+                'L=[М,Н,О]',
+                'D=[0-5]',
                 'S=[ ]',
                 'R=[78,79]'
             ];

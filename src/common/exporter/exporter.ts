@@ -1,4 +1,4 @@
-import { ExportOptions } from '../entities/export-options';
+import { ExportOptions } from '../../number-generator/entities/export-options';
 import * as fs from 'fs';
 import path from 'path';
 

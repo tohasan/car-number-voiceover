@@ -19,3 +19,11 @@ $ yarn generate:numbers --pattern "[L, D]" --definitions "L=[A, B]" "D=[0-3]"
 
 You will get the result file in the `./output/numbers.txt`. You can
 specify a desired filename if you want.
+
+You can use more complicated patterns. For instance:
+
+```shell
+$ yarn generate:numbers \
+    --pattern "[L, D, D, D, L, L, S, R]" \
+    --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[78,79]"
+```

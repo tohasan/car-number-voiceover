@@ -1,0 +1,18 @@
+@startuml
+
+class Exporter {
+    + Exporter(options: ExportOptions)
+    + export(records: string[]): void
+}
+
+@enduml
+
+@startuml(id=ExporterPrivate)
+
+!include exporter.puml
+
+class Exporter {
+    - options: ExportOptions
+}
+
+@enduml
