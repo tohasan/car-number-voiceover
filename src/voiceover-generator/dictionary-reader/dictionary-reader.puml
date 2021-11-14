@@ -1,0 +1,11 @@
+@startuml
+
+class DictionaryReader {
+    read(filename: string): VoiceoverDictionary
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant DictionaryReader
+@enduml

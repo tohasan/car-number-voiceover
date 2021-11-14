@@ -1,0 +1,11 @@
+@startuml
+
+class Generator {
+    + generate(facets: Facet[]): CarNumber[]
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant Generator
+@enduml

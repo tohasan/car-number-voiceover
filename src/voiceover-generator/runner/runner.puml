@@ -1,0 +1,11 @@
+@startuml
+
+class Runner {
+    + run(args: string[]): void
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant Runner
+@enduml

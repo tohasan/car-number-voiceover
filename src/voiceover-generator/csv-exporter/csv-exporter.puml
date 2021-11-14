@@ -1,0 +1,11 @@
+@startuml
+
+class CsvExporter {
+    + export(filename: Filename, records: object[]): void
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant CsvExporter
+@enduml

@@ -9,7 +9,7 @@ describe('GeneratorCli', () => {
         cli = new GeneratorCli();
     });
 
-    describe('#run', () => {
+    describe('#parse', () => {
         const pattern = '[L, D, D, D, L, L, S, R]';
         const definitions = [
             'L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]',

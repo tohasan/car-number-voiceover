@@ -5,6 +5,7 @@ module.exports = {
     ],
     coveragePathIgnorePatterns: [
         'src/number-generator/index.ts',
+        'src/voiceover-generator/index.ts',
         '.*\\.d\\.ts'
     ],
     testMatch: [

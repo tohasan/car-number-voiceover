@@ -1,0 +1,37 @@
+@startuml
+
+title Voiceover Generator. Sequence Diagram
+
+autonumber
+
+!include ../common/actors/actors.puml!Analyst
+!include ../common/actors/actors.puml!EntryPoint
+!include runner/runner.puml!PARTICIPANT
+!include generator-cli/generator-cli.puml!PARTICIPANT
+!include car-numbers-reader/car-numbers-reader.puml!PARTICIPANT
+!include dictionary-reader/dictionary-reader.puml!PARTICIPANT
+!include generator/generator.puml!PARTICIPANT
+!include csv-exporter/csv-exporter.puml!PARTICIPANT
+
+Analyst -> index: generate:numbers <args>
+index -> Runner: run(args)
+
+Runner -> GeneratorCli: parse(args)
+Runner <- GeneratorCli: CliArguments\n{ dictionary, input, output }
+
+Runner -> CarNumbersReader: read(input)
+Runner <- CarNumbersReader: numbers: CarNumber[]
+
+Runner -> DictionaryReader: read(dictionary)
+Runner <- DictionaryReader: dictionary: VoiceoverDictionary
+
+Runner -> Generator: generate(numbers, dictionary)
+Runner <- Generator: voiceovers: Voiceover[]
+
+Runner -> CsvExporter: export(output, voiceovers)
+Runner <- CsvExporter: output\n(default: ./output/voiceovers.csv)
+
+index <- Runner: output\n(default: ./output/voiceovers.csv)
+Analyst <- index: output\n(default: ./output/voiceovers.csv)
+
+@enduml

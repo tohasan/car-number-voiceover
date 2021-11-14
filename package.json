@@ -8,17 +8,19 @@
     "license": "MIT",
     "private": false,
     "bin": {
-        "generate-numbers": "number-generator/index.js"
+        "generate:numbers": "number-generator/index.js",
+        "generate:voiceover": "voiceover-generator/index.js"
     },
     "scripts": {
-        "start": "ts-node src/number-generator/index.ts",
         "generate:numbers": "ts-node src/number-generator/index.ts",
-        "start:bin": "node dist/index.js",
+        "generate:voiceover": "ts-node src/voiceover-generator/index.ts",
         "lint": "yarn lint:code .",
         "test": "jest --coverage",
         "test:ci": "yarn test --ci",
         "compile": "tsc",
-        "build": "ncc build src/number-generator/index.ts -m -o dist/number-generator",
+        "build": "yarn build:numbers && yarn build:voiceover",
+        "build:numbers": "ncc build src/number-generator/index.ts -m -o dist/number-generator",
+        "build:voiceover": "ncc build src/voiceover-generator/index.ts -m -o dist/voiceover-generator",
         "lint:code": "eslint --ext .js,.ts"
     },
     "husky": {

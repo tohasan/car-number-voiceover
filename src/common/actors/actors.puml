@@ -1,0 +1,7 @@
+@startuml(id=Analyst)
+actor "Analyst (Igor K.)" as Analyst
+@enduml
+
+@startuml(id=EntryPoint)
+participant "index (EntryPoint)" as index
+@enduml

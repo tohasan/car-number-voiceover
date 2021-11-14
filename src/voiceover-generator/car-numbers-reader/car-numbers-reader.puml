@@ -1,0 +1,11 @@
+@startuml
+
+class CarNumbersReader {
+    + read(filename: string): CarNumber[]
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant CarNumbersReader
+@enduml

@@ -1,14 +1,10 @@
-import { ExportOptions } from '../../number-generator/entities/export-options';
 import * as fs from 'fs';
 import path from 'path';
+import { Filename } from '../entities/filename';
 
 export class Exporter {
 
-    constructor(private readonly options: ExportOptions) {
-    }
-
-    export(records: string[]): void {
-        const { filename } = this.options;
+    export(filename: Filename, records: string[]): void {
         const dir = path.dirname(filename);
 
         if (!fs.existsSync(dir)) {

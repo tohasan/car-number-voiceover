@@ -4,9 +4,8 @@ title Car Number Generator. Sequence Diagram
 
 autonumber
 
-actor "Analyst (Igor K.)" as Analyst
-participant "index (EntryPoint)" as index
-
+!include ../common/actors/actors.puml!Analyst
+!include ../common/actors/actors.puml!EntryPoint
 !include runner/runner.puml!PARTICIPANT
 !include generator-cli/generator-cli.puml!PARTICIPANT
 !include pattern-parser/pattern-parser.puml!PARTICIPANT
@@ -25,12 +24,10 @@ Runner <- PatternParser: facets: Facet[]
 Runner -> Generator: generate(facets)
 Runner <- Generator: numbers: CarNumber[]
 
-Runner -> Exporter: new(output)
-Runner <- Exporter: exporter: Exporter
-Runner -> Exporter: export(numbers)
-Runner <- Exporter: outputFile\n(default: ./output/numbers.txt)
+Runner -> Exporter: export(output, numbers)
+Runner <- Exporter: output\n(default: ./output/numbers.txt)
 
-index <- Runner: outputFile\n(default: ./output/numbers.txt)
-Analyst <- index: outputFile\n(default: ./output/numbers.txt)
+index <- Runner: output\n(default: ./output/numbers.txt)
+Analyst <- index: output\n(default: ./output/numbers.txt)
 
 @enduml
