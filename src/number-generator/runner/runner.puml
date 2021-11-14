@@ -5,3 +5,7 @@ class Runner {
 }
 
 @enduml
+
+@startuml(id=PARTICIPANT)
+participant Runner
+@enduml

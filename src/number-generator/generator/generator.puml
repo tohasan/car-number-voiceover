@@ -15,3 +15,7 @@ class Generator {
 }
 
 @enduml
+
+@startuml(id=PARTICIPANT)
+participant Generator
+@enduml

@@ -1,5 +1,7 @@
 @startuml
 
+title Car Number Generator. Class Diagram
+
 skinparam linetype ortho
 
 !include runner/runner.puml

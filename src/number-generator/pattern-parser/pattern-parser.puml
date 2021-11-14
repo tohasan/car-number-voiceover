@@ -17,3 +17,7 @@ class PatternParser {
 }
 
 @enduml
+
+@startuml(id=PARTICIPANT)
+participant PatternParser
+@enduml

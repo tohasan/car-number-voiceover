@@ -5,3 +5,7 @@ class GeneratorCli {
 }
 
 @enduml
+
+@startuml(id=PARTICIPANT)
+participant GeneratorCli
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+
+title Car Number Generator. Sequence Diagram
+
+autonumber
+
+actor "Analyst (Igor K.)" as Analyst
+participant "index (EntryPoint)" as index
+
+!include runner/runner.puml!PARTICIPANT
+!include generator-cli/generator-cli.puml!PARTICIPANT
+!include pattern-parser/pattern-parser.puml!PARTICIPANT
+!include generator/generator.puml!PARTICIPANT
+!include ../common/exporter/exporter.puml!PARTICIPANT
+
+Analyst -> index: generate:numbers <args>
+index -> Runner: run(args)
+
+Runner -> GeneratorCli: parse(args)
+Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output }
+
+Runner -> PatternParser: parse(pattern, definitions)
+Runner <- PatternParser: facets: Facet[]
+
+Runner -> Generator: generate(facets)
+Runner <- Generator: numbers: CarNumber[]
+
+Runner -> Exporter: new(output)
+Runner <- Exporter: exporter: Exporter
+Runner -> Exporter: export(numbers)
+Runner <- Exporter: outputFile\n(default: ./output/numbers.txt)
+
+index <- Runner: outputFile\n(default: ./output/numbers.txt)
+Analyst <- index: outputFile\n(default: ./output/numbers.txt)
+
+@enduml
