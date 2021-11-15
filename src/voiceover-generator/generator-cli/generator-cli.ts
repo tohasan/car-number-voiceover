@@ -1,10 +1,33 @@
 import { CliArguments } from '../entities/cli-arguments';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import * as packageJson from '../../../package.json';
 
 export class GeneratorCli {
 
     parse(commandLineArgs: string[]): CliArguments {
-        // eslint-disable-next-line no-console
-        console.log(commandLineArgs);
-        return {} as CliArguments;
+        return yargs(hideBin(commandLineArgs))
+            .usage('Usage: $0 --input "<filename>" --dictionary "<filename>" [--output "<filename>"]')
+            .epilogue('Copyright (c) tohasan, Voiceover Generator, 2021. All Rights Reserved.')
+            .option('input', {
+                alias: 'i',
+                type: 'string',
+                description: 'An input file with car numbers'
+            })
+            .option('dictionary', {
+                alias: 'd',
+                type: 'string',
+                description: 'A file with voiceover dictionary'
+            })
+            .option('output', {
+                alias: 'o',
+                type: 'string',
+                description: 'A file to export generated voiceovers',
+                default: './output/voiceovers.csv'
+            })
+            .version(packageJson.version)
+            .demandOption(['input', 'dictionary'])
+            .showHelpOnFail(true)
+            .parse() as CliArguments;
     }
 }

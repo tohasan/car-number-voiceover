@@ -30,7 +30,7 @@ describe('Runner', () => {
             runner.run(args);
 
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
-            expect(voiceovers).toContain('A002BB 78;а два ноля два дубль вэ семьдесят восьмой регион');
+            expect(voiceovers).toContain('А002ВВ 78;а два ноля два дубль вэ регион семьдесят восемь');
         });
     });
 

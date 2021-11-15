@@ -1,0 +1,22 @@
+@startuml
+
+class FacetsGenerator {
+    + generate(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][]
+}
+
+@enduml
+
+@startuml(id=GeneratorPrivate)
+
+!include facets-generator.puml
+
+class FacetsGenerator {
+    - filterOutCharsIfNotPresentInKeys(carNumber: CarNumber, voiceoverKeys: VoiceoverKey[]): CarNumber
+    - findKeySets(str: string, voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][]
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant FacetsGenerator
+@enduml

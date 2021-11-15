@@ -1,10 +1,11 @@
 import { CarNumber } from '../../common/entities/car-number';
+import * as fs from 'fs';
+import { EOL } from 'os';
 
 export class CarNumbersReader {
 
     read(filename: string): CarNumber[] {
-        // eslint-disable-next-line no-console
-        console.log(filename);
-        return [];
+        const content = fs.readFileSync(filename, 'utf8');
+        return content.split(EOL);
     }
 }

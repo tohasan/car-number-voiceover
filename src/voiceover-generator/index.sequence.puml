@@ -10,6 +10,7 @@ autonumber
 !include generator-cli/generator-cli.puml!PARTICIPANT
 !include car-numbers-reader/car-numbers-reader.puml!PARTICIPANT
 !include dictionary-reader/dictionary-reader.puml!PARTICIPANT
+!include facets-generator/facets-generator.puml!PARTICIPANT
 !include generator/generator.puml!PARTICIPANT
 !include csv-exporter/csv-exporter.puml!PARTICIPANT
 
@@ -23,9 +24,12 @@ Runner -> CarNumbersReader: read(input)
 Runner <- CarNumbersReader: numbers: CarNumber[]
 
 Runner -> DictionaryReader: read(dictionary)
-Runner <- DictionaryReader: dictionary: VoiceoverDictionary
+Runner <- DictionaryReader: dict: VoiceoverDictionary
 
-Runner -> Generator: generate(numbers, dictionary)
+Runner -> FacetsGenerator: generate(numbers, keys(dict))
+Runner <- FacetsGenerator: keySets: VoiceoverKey[][]
+
+Runner -> Generator: generate(keySets, dict)
 Runner <- Generator: voiceovers: Voiceover[]
 
 Runner -> CsvExporter: export(output, voiceovers)

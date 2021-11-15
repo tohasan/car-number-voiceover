@@ -1,21 +1,12 @@
 import { CarNumber } from '../../common/entities/car-number';
-import { Facet, FacetValue } from '../entities/facet';
+import { Facet } from '../../common/entities/facet';
+import { Combinator } from '../../common/combinator/combinator';
 
 export class Generator {
+    private combinator = new Combinator();
 
     generate(facets: Facet[]): CarNumber[] {
-        return this.cartesianProduct(facets)
+        return this.combinator.cartesianProduct(facets)
             .map(set => set.join(''));
     }
-
-    private cartesianProduct(facets: Facet[]): DisjointCardNumber[] {
-        return facets.reduce<DisjointCardNumber[]>(
-            (accSets, facet) => {
-                return accSets.flatMap(accSet => facet.map(value => [...accSet, value]));
-            },
-            [[]]
-        );
-    }
 }
-
-type DisjointCardNumber = FacetValue[];

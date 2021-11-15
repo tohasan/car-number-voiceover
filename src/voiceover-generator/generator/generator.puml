@@ -1,7 +1,18 @@
 @startuml
 
 class Generator {
-    + generate(facets: Facet[]): CarNumber[]
+    + generate(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): Voiceover[]
+}
+
+@enduml
+
+@startuml(id=GeneratorPrivate)
+
+!include generator.puml
+
+class Generator {
+    - combinator: Combinator
+    - getFacetByKeys(keySet: VoiceoverKey[], dictionary: VoiceoverDictionary): VoiceoverFacetSet
 }
 
 @enduml

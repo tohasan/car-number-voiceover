@@ -27,7 +27,6 @@ describe('CsvExporter', () => {
             exporter.export(filename, records);
 
             expect(getFileContent(filename)).toEqual([
-                'name;options',
                 'A001MH 78;а два ноля единица эм эн регион семьдесят восемь',
                 'C777YX 79;си джекпот увай экс семьдесят девятый регион'
             ].join('\n'));

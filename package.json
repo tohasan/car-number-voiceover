@@ -8,8 +8,8 @@
     "license": "MIT",
     "private": false,
     "bin": {
-        "generate:numbers": "number-generator/index.js",
-        "generate:voiceover": "voiceover-generator/index.js"
+        "generate-numbers": "number-generator/index.js",
+        "generate-voiceover": "voiceover-generator/index.js"
     },
     "scripts": {
         "generate:numbers": "ts-node src/number-generator/index.ts",

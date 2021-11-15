@@ -7,12 +7,12 @@ export class Runner {
     private readonly cli = new GeneratorCli();
     private readonly patternParser = new PatternParser();
     private readonly generator = new Generator();
+    private readonly exporter = new Exporter();
 
     run(args: string[]): void {
         const { pattern, definitions, output } = this.cli.parse(args);
         const facets = this.patternParser.parse(pattern, definitions);
         const carNumbers = this.generator.generate(facets);
-        const exporter = new Exporter({ filename: output });
-        exporter.export(carNumbers);
+        this.exporter.export(output, carNumbers);
     }
 }

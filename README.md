@@ -7,13 +7,13 @@ variety of pronunciations.
 
 * nodejs v16+
 * yarn v1.22+
+* installed dependencies: `yarn`
 
 ## Usage
 
 ### Car Number Generator
 
 ```shell
-$ yarn
 $ yarn generate:numbers --pattern "[L, D]" --definitions "L=[A, B]" "D=[0-3]"
 ```
 
@@ -27,3 +27,24 @@ $ yarn generate:numbers \
     --pattern "[L, D, D, D, L, L, S, R]" \
     --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[78,79]"
 ```
+
+### Voiceover Generator
+
+A multiline version of the command:
+
+```shell
+$yarn generate:voiceover \
+    --input assets/voiceover/example/numbers.txt \
+    --dictionary assets/voiceover/example/voiceover.dictionary.csv \
+    --output output/voiceovers.csv
+```
+
+A single line version of the command if multiline does not work for
+you:
+
+```shell
+$yarn generate:voiceover --input assets/voiceover/example/numbers.txt --dictionary assets/voiceover/example/voiceover.dictionary.csv --output output/voiceovers.csv
+```
+
+If you do not specify the output file, by default you should find the
+result in `./output/voiceovers.csv`.

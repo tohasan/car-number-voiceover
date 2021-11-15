@@ -1,4 +1,4 @@
-import { Facet, FacetValue } from '../entities/facet';
+import { Facet, FacetValue } from '../../common/entities/facet';
 import { Definition } from '../entities/definition';
 import { AppError } from '../../common/entities/errors/app-error';
 

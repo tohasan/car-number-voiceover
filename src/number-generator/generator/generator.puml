@@ -11,7 +11,7 @@ class Generator {
 !include generator.puml
 
 class Generator {
-    - cartesianProduct(facets: Facet[]): DisjointCardNumber[]
+    - combinator: Combinator
 }
 
 @enduml
