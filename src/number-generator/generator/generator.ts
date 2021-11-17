@@ -6,7 +6,7 @@ export class Generator {
     private combinator = new Combinator();
 
     generate(facets: Facet[]): CarNumber[] {
-        return this.combinator.cartesianProduct(facets)
+        return this.combinator.mix(facets)
             .map(set => set.join(''));
     }
 }

@@ -10,7 +10,7 @@ export class Generator {
         return keySets.flatMap(keySet => {
             const name = keySet.join('');
             const facets = this.getFacetByKeys(keySet, dictionary);
-            return this.combinator.cartesianProduct(facets)
+            return this.combinator.mix(facets)
                 .map(set => ({ name, options: [set.join(' ')] }));
         });
     }
