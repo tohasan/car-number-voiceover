@@ -78,33 +78,31 @@ describe('Combinator', () => {
             ]);
         });
 
-        it('should generate special numeric combinations for 20, 30, ...', () => {
+        it('should consider numeric combinations 20, 30, ... as others (nothing special)', () => {
             const facets = [['A', 'B'], ['2', '3', '4'], ['0', '4', '8']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
                 ['A', '2', '0'],
-                ['B', '3', '0'],
-                ['A', '4', '0'],
                 ['B', '2', '4'],
-                ['A', '3', '8']
+                ['A', '2', '8'],
+                ['B', '3', '0'],
+                ['A', '4', '4']
             ]);
         });
 
-        it('should generate special numeric combinations for 100, 200, ...', () => {
+        it('should consider numeric combinations for 100, 200, ... as others (nothing special)', () => {
             const facets = [['A', 'B'], ['1', '2', '3'], ['0', '8'], ['0', '9']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
                 ['A', '1', '0', '0'],
-                ['B', '2', '0', '0'],
-                ['A', '3', '0', '0'],
-                ['B', '1', '0', '8'],
-                ['A', '2', '0', '9'],
-                ['B', '3', '8', '0'],
-                ['A', '1', '8', '9']
+                ['B', '1', '0', '9'],
+                ['A', '1', '8', '0'],
+                ['B', '2', '0', '9'],
+                ['A', '3', '8', '0']
             ]);
         });
 

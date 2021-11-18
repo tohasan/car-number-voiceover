@@ -94,7 +94,7 @@ export class Combinator {
                 const isWhiteListed = this.whiteRules.some(rule => {
                     const [min, max] = rule.range;
                     const maxLength = String(max).length;
-                    const numberSubstr = numberStr.substr(0, maxLength);
+                    const numberSubstr = numberStr.substr(-maxLength);
                     const subNumber = Number(numberSubstr);
                     return rule.type === RangeMatchingType.INCLUDE && min <= subNumber && subNumber <= max;
                 });
