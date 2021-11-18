@@ -80,113 +80,132 @@ export class Generator {
         const uniqueWhiteListedValues = new Set<number>();
         const uniqueSimilarSequences = new Set<string>();
         const pointerToTheNextPerDigitPos: number[] = new Array(higherOrderFacet[0].length).fill(0);
-        const flags: Boolean[][] = [];
         return higherOrderFacet.map(facet => facet.reverse())
-            .filter(facet => {
-                const numberStr = [...facet].reverse().join('');
-                const number = Number(numberStr);
-
-                // Black list rule
-                const isBlackListed = this.blackRules.some(rule => {
-                    const [min, max] = rule.range;
-                    return rule.type === RangeMatchingType.EXACT && min <= number && number <= max;
-                });
-                if (isBlackListed) {
-                    flags.push([]);
-                    return false;
+            .map(facet => {
+                if (this.isBlackListed(facet)) {
+                    return [];
                 }
 
-                // White list rule
-                const isWhiteListed = this.whiteRules.some(rule => {
-                    const [min, max] = rule.range;
-                    const maxLength = String(max).length;
-                    const numberSubstr = numberStr.substr(-maxLength);
-                    const subNumber = Number(numberSubstr);
-                    const isWhite = rule.type === RangeMatchingType.INCLUDE
-                        && min <= subNumber && subNumber <= max
-                        && !uniqueWhiteListedValues.has(subNumber);
-
-                    if (isWhite) {
-                        uniqueWhiteListedValues.add(subNumber);
-                        const subFacet = numberSubstr.split('').reverse();
-                        subFacet.forEach((value, pos) => uniqueValuesPerDigitPos[pos].add(value));
-                    }
-
-                    return isWhite;
-                });
-                if (isWhiteListed) {
-                    flags.push([]);
-                    return true;
-                }
-
-                // Unique digits rule
-                const uniqueFlags = facet.map((value, pos) => {
-                    const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
-                    const isUnique = !uniqueValuesAtPosition.has(value);
-                    if (isUnique) {
-                        uniqueValuesAtPosition.add(value);
-                    }
-                    return isUnique;
-                });
-                const hasUnique = uniqueFlags.some(isUnique => isUnique);
+                let resultFacet = facet;
+                const [hasUnique, uniqueFlags] = this.hasUniqueDigits(facet, uniqueValuesPerDigitPos);
                 if (hasUnique) {
-                    flags.push(uniqueFlags);
-                    return hasUnique;
+                    resultFacet = this.transformFacetWithTheNextValuesBeforeUniquePosition(
+                        facet,
+                        uniqueFlags,
+                        uniqueValuesPerDigitPos,
+                        pointerToTheNextPerDigitPos
+                    );
                 }
 
-                // Sequence of identical digits
-                let sequence = '';
-                let hasUniqueSimilarSequence = false;
-                for (let i = 0; i < numberStr.length; i++) {
-                    const isLastDigit = numberStr.length - 1 === i;
-                    const digit = numberStr[i];
-                    if (!sequence.length) {
-                        sequence += digit;
-                        continue;
-                    }
+                const isWhiteListed = this.isWhiteListed(facet, uniqueWhiteListedValues);
+                const hasUniqueSimilarSequence = this.hasUniqueSimilarSequence(resultFacet, uniqueSimilarSequences);
+                const shouldPresent = isWhiteListed || hasUnique || hasUniqueSimilarSequence;
 
-                    // eslint-disable-next-line eigenspace-script/conditions
-                    if (sequence[sequence.length - 1] === digit) {
-                        sequence += digit;
-                        if (!isLastDigit) {
-                            continue;
-                        }
-                    }
-
-                    if (1 < sequence.length && !uniqueSimilarSequences.has(sequence)) {
-                        uniqueSimilarSequences.add(sequence);
-                        hasUniqueSimilarSequence = true;
-                        flags.push([]);
-                        break;
-                    }
-
-                    sequence = digit;
-                }
-                return hasUniqueSimilarSequence;
+                return shouldPresent ? resultFacet : [];
             })
-            .map((facet, index) => {
-                const uniqueFlags = flags[index];
-                if (!uniqueFlags.length) {
-                    return facet;
-                }
-
-                // Build with next position before unique
-                const firstUniquePosition = uniqueFlags.findIndex(isUnique => isUnique);
-                return facet.map((value, pos) => {
-                    if (firstUniquePosition <= pos) {
-                        return value;
-                    }
-
-                    const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
-                    const valuesAtPosition = Array.from(uniqueValuesAtPosition);
-                    let pointerToTheNext = pointerToTheNextPerDigitPos[pos];
-                    const nextValue = valuesAtPosition[pointerToTheNext];
-                    pointerToTheNext++;
-                    pointerToTheNextPerDigitPos[pos] = pointerToTheNext % valuesAtPosition.length;
-                    return nextValue;
-                });
-            })
+            .filter(facet => Boolean(facet.length))
             .map(facet => facet.reverse());
+    }
+
+    private isBlackListed(facet: Facet): boolean {
+        const numberStr = [...facet].reverse().join('');
+        const number = Number(numberStr);
+
+        return this.blackRules.some(rule => {
+            const [min, max] = rule.range;
+            return rule.type === RangeMatchingType.EXACT && min <= number && number <= max;
+        });
+    }
+
+    private isWhiteListed(facet: Facet, uniqueWhiteListedValues: Set<number>): boolean {
+        const numberStr = [...facet].reverse().join('');
+
+        return this.whiteRules.some(rule => {
+            const [min, max] = rule.range;
+            const maxLength = String(max).length;
+            const numberSubstr = numberStr.substr(-maxLength);
+            const subNumber = Number(numberSubstr);
+            const isWhite = rule.type === RangeMatchingType.INCLUDE
+                && min <= subNumber && subNumber <= max
+                && !uniqueWhiteListedValues.has(subNumber);
+
+            if (isWhite) {
+                uniqueWhiteListedValues.add(subNumber);
+            }
+
+            return isWhite;
+        });
+    }
+
+    private hasUniqueDigits(facet: Facet, uniqueValuesPerDigitPos: Set<FacetValue>[]): [boolean, boolean[]] {
+        const uniqueFlags = facet.map((value, pos) => {
+            const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
+            const isUnique = !uniqueValuesAtPosition.has(value);
+            if (isUnique) {
+                uniqueValuesAtPosition.add(value);
+            }
+            return isUnique;
+        });
+
+        const hasUnique = uniqueFlags.some(isUnique => isUnique);
+        return [hasUnique, uniqueFlags];
+    }
+
+    // noinspection JSMethodCanBeStatic
+    private hasUniqueSimilarSequence(facet: Facet, uniqueSimilarSequences: Set<string>): boolean {
+        const numberStr = [...facet].reverse().join('');
+        let sequence = '';
+        let hasUniqueSimilarSequence = false;
+
+        for (let i = 0; i < numberStr.length; i++) {
+            const isLastDigit = numberStr.length - 1 === i;
+            const digit = numberStr[i];
+            if (!sequence.length) {
+                sequence += digit;
+                continue;
+            }
+
+            // eslint-disable-next-line eigenspace-script/conditions
+            if (sequence[sequence.length - 1] === digit) {
+                sequence += digit;
+                if (!isLastDigit) {
+                    continue;
+                }
+            }
+
+            if (1 < sequence.length && !uniqueSimilarSequences.has(sequence)) {
+                uniqueSimilarSequences.add(sequence);
+                hasUniqueSimilarSequence = true;
+                break;
+            }
+
+            sequence = digit;
+        }
+
+        return hasUniqueSimilarSequence;
+    }
+
+    private transformFacetWithTheNextValuesBeforeUniquePosition(
+        facet: Facet,
+        uniqueFlags: boolean[],
+        uniqueValuesPerDigitPos: Set<FacetValue>[],
+        pointerToTheNextPerDigitPos: number[]
+    ): Facet {
+        const firstUniquePosition = uniqueFlags.findIndex(isUnique => isUnique);
+        return facet.map((value, pos) => {
+            if (firstUniquePosition <= pos) {
+                return value;
+            }
+
+            const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
+            const valuesAtPosition = Array.from(uniqueValuesAtPosition);
+            let pointerToTheNext = pointerToTheNextPerDigitPos[pos];
+            const nextValue = valuesAtPosition[pointerToTheNext];
+            pointerToTheNext++;
+            // eslint-disable-next-line no-param-reassign
+            pointerToTheNextPerDigitPos[pos] = pointerToTheNext % valuesAtPosition.length;
+            return nextValue;
+        });
     }
 
     private makeMix(facets: HigherOrderFacet[]): DisjointCombination[] {
