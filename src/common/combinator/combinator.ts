@@ -82,6 +82,7 @@ export class Combinator {
                 const numberStr = [...facet].reverse().join('');
                 const number = Number(numberStr);
 
+                // Black list rule
                 const isBlackListed = this.blackRules.some(rule => {
                     const [min, max] = rule.range;
                     return rule.type === RangeMatchingType.EXACT && min <= number && number <= max;
@@ -91,6 +92,7 @@ export class Combinator {
                     return false;
                 }
 
+                // White list rule
                 const isWhiteListed = this.whiteRules.some(rule => {
                     const [min, max] = rule.range;
                     const maxLength = String(max).length;
@@ -103,6 +105,7 @@ export class Combinator {
                     return true;
                 }
 
+                // Unique digits rule
                 const uniqueFlags = facet.map((value, pos) => {
                     const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
                     const isUnique = !uniqueValuesAtPosition.has(value);

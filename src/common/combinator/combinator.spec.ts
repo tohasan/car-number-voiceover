@@ -112,29 +112,29 @@ describe('Combinator', () => {
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
-                ['A', '1', '2', '0'],
-                ['B', '2', '0', '0'],
-                ['A', '3', '0', '0'],
-                ['B', '1', '0', '8'],
-                ['A', '2', '0', '9'],
-                ['B', '3', '8', '0'],
-                ['A', '1', '8', '9']
+                ['A', '1', '1', '3'],
+                ['B', '1', '2', '9'],
+                ['A', '1', '8', '3'],
+                ['B', '2', '2', '9'],
+                ['A', '3', '3', '3']
             ]);
         });
 
         it('should generate pairs of the same value for letters', () => {
-            const facets = [['A', 'B'], ['1', '2', '3'], ['1', '2', '8'], ['3', '9']];
+            const facets = [['A', 'B', 'C'], ['A', 'C', 'D'], ['2', '8'], ['A', 'B']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
-                ['A', '1', '2', '0'],
-                ['B', '2', '0', '0'],
-                ['A', '3', '0', '0'],
-                ['B', '1', '0', '8'],
-                ['A', '2', '0', '9'],
-                ['B', '3', '8', '0'],
-                ['A', '1', '8', '9']
+                ['A', 'A', '2', 'A'],
+                ['A', 'C', '8', 'B'],
+                ['A', 'D', '2', 'A'],
+                ['B', 'A', '8', 'B'],
+                ['B', 'C', '2', 'A'],
+                ['B', 'D', '8', 'B'],
+                ['C', 'A', '2', 'A'],
+                ['C', 'C', '8', 'B'],
+                ['C', 'D', '2', 'A']
             ]);
         });
 
@@ -155,18 +155,19 @@ describe('Combinator', () => {
         });
 
         it('should generate triples of the same value for letters', () => {
-            const facets = [['A', 'B'], ['1', '2', '3'], ['1', '2', '8'], ['3', '9']];
+            const facets = [['A', 'B'], ['A', 'B'], ['A', 'B'], ['3', '9']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
-                ['A', '1', '2', '0'],
-                ['B', '2', '0', '0'],
-                ['A', '3', '0', '0'],
-                ['B', '1', '0', '8'],
-                ['A', '2', '0', '9'],
-                ['B', '3', '8', '0'],
-                ['A', '1', '8', '9']
+                ['A', 'A', 'A', '3'],
+                ['A', 'A', 'B', '9'],
+                ['A', 'B', 'A', '3'],
+                ['A', 'B', 'B', '9'],
+                ['B', 'A', 'A', '3'],
+                ['B', 'A', 'B', '9'],
+                ['B', 'B', 'A', '3'],
+                ['B', 'B', 'B', '9']
             ]);
         });
 
