@@ -2,6 +2,12 @@ import { Facet, FacetValue } from '../entities/facet';
 import { DisjointCombination } from '../entities/disjoint-combination';
 
 export class Combinator {
+    private whiteRules: RangeRule[] = [
+        { range: [10, 19], type: RangeMatchingType.INCLUDE }
+    ];
+    private blackRules: RangeRule[] = [
+        { range: [0, 0], type: RangeMatchingType.EXACT }
+    ];
 
     mix(facets: Facet[]): DisjointCombination[] {
         const facetGroups = this.groupSimilarFacets(facets);
@@ -38,10 +44,12 @@ export class Combinator {
         return groups;
     }
 
+    // noinspection JSMethodCanBeStatic
     private containsOnlyLetters(facet: Facet): boolean {
         return facet.every(value => /[a-zа-я]/i.test(value));
     }
 
+    // noinspection JSMethodCanBeStatic
     private containsOnlyDigits(facet: Facet): boolean {
         return facet.every(value => /[0-9]/.test(value));
     }
@@ -71,6 +79,30 @@ export class Combinator {
         const flags: Boolean[][] = [];
         return higherOrderFacet.map(facet => facet.reverse())
             .filter(facet => {
+                const numberStr = [...facet].reverse().join('');
+                const number = Number(numberStr);
+
+                const isBlackListed = this.blackRules.some(rule => {
+                    const [min, max] = rule.range;
+                    return rule.type === RangeMatchingType.EXACT && min <= number && number <= max;
+                });
+                if (isBlackListed) {
+                    flags.push([]);
+                    return false;
+                }
+
+                const isWhiteListed = this.whiteRules.some(rule => {
+                    const [min, max] = rule.range;
+                    const maxLength = String(max).length;
+                    const numberSubstr = numberStr.substr(0, maxLength);
+                    const subNumber = Number(numberSubstr);
+                    return rule.type === RangeMatchingType.INCLUDE && min <= subNumber && subNumber <= max;
+                });
+                if (isWhiteListed) {
+                    flags.push([]);
+                    return true;
+                }
+
                 const uniqueFlags = facet.map((value, pos) => {
                     const uniqueValuesAtPosition = uniqueValuesPerDigitPos[pos];
                     const isUnique = !uniqueValuesAtPosition.has(value);
@@ -87,6 +119,10 @@ export class Combinator {
             })
             .map((facet, index) => {
                 const uniqueFlags = flags[index];
+                if (!uniqueFlags.length) {
+                    return facet;
+                }
+
                 // Build with next position before unique
                 const firstUniquePosition = uniqueFlags.findIndex(isUnique => isUnique);
                 return facet.map((value, pos) => {
@@ -127,3 +163,13 @@ export class Combinator {
 
 type Max = number;
 type HigherOrderFacet = Facet[];
+
+enum RangeMatchingType {
+    EXACT = 'exact',
+    INCLUDE = 'include'
+}
+
+interface RangeRule {
+    range: [number, number];
+    type: RangeMatchingType;
+}

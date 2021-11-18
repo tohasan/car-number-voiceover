@@ -74,8 +74,7 @@ describe('Combinator', () => {
                 ['B', '0', '8'],
                 ['A', '1', '4'],
                 ['B', '1', '8'],
-                ['A', '2', '4'],
-                ['B', '2', '8']
+                ['A', '2', '4']
             ]);
         });
 
@@ -170,6 +169,18 @@ describe('Combinator', () => {
                 ['A', '2', '0', '9'],
                 ['B', '3', '8', '0'],
                 ['A', '1', '8', '9']
+            ]);
+        });
+
+        it('should not generate zero numbers', () => {
+            const facets = [['A', 'B'], ['0', '1'], ['0', '2']];
+
+            const combinations = combinator.mix(facets);
+
+            expect(combinations).toEqual([
+                ['A', '0', '2'],
+                ['B', '1', '0'],
+                ['A', '1', '2']
             ]);
         });
 
