@@ -65,16 +65,15 @@ describe('Combinator', () => {
         });
 
         it('should generate special numeric combinations for 10-19', () => {
-            const facets = [['A', 'B'], ['0', '1', '2'], ['4', '8']];
+            const facets = [['A', 'B'], ['1', '2'], ['0', '1', '2'], ['4', '8']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
-                ['A', '0', '4'],
-                ['B', '0', '8'],
-                ['A', '1', '4'],
-                ['B', '1', '8'],
-                ['A', '2', '4']
+                ['A', '1', '1', '4'],
+                ['B', '2', '1', '8'],
+                ['A', '1', '0', '4'],
+                ['B', '2', '2', '8']
             ]);
         });
 
@@ -113,10 +112,9 @@ describe('Combinator', () => {
 
             expect(combinations).toEqual([
                 ['A', '1', '1', '3'],
-                ['B', '1', '2', '9'],
-                ['A', '1', '8', '3'],
                 ['B', '2', '2', '9'],
-                ['A', '3', '3', '3']
+                ['A', '3', '8', '3'],
+                ['B', '1', '1', '9']
             ]);
         });
 
@@ -139,18 +137,14 @@ describe('Combinator', () => {
         });
 
         it('should generate triples of the same value for numbers', () => {
-            const facets = [['A', 'B'], ['1', '2', '3'], ['1', '2', '8'], ['3', '9']];
+            const facets = [['A', 'B'], ['2', '3'], ['2', '3'], ['2', '3', '4']];
 
             const combinations = combinator.mix(facets);
 
             expect(combinations).toEqual([
-                ['A', '1', '2', '0'],
-                ['B', '2', '0', '0'],
-                ['A', '3', '0', '0'],
-                ['B', '1', '0', '8'],
-                ['A', '2', '0', '9'],
-                ['B', '3', '8', '0'],
-                ['A', '1', '8', '9']
+                ['A', '2', '2', '2'],
+                ['B', '3', '3', '3'],
+                ['A', '2', '2', '4']
             ]);
         });
 

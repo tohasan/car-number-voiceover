@@ -75,6 +75,7 @@ export class Combinator {
 
         const uniqueValuesPerDigitPos: Set<FacetValue>[] = new Array(higherOrderFacet[0].length).fill(0)
             .map(() => new Set());
+        const uniqueWhiteListedValues = new Set<number>();
         const pointerToTheNextPerDigitPos: number[] = new Array(higherOrderFacet[0].length).fill(0);
         const flags: Boolean[][] = [];
         return higherOrderFacet.map(facet => facet.reverse())
@@ -98,7 +99,15 @@ export class Combinator {
                     const maxLength = String(max).length;
                     const numberSubstr = numberStr.substr(-maxLength);
                     const subNumber = Number(numberSubstr);
-                    return rule.type === RangeMatchingType.INCLUDE && min <= subNumber && subNumber <= max;
+                    const isWhite = rule.type === RangeMatchingType.INCLUDE
+                        && min <= subNumber && subNumber <= max
+                        && !uniqueWhiteListedValues.has(subNumber);
+
+                    if (isWhite) {
+                        uniqueWhiteListedValues.add(subNumber);
+                    }
+
+                    return isWhite;
                 });
                 if (isWhiteListed) {
                     flags.push([]);
