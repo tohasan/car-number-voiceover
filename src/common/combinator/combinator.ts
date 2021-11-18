@@ -76,6 +76,7 @@ export class Combinator {
         const uniqueValuesPerDigitPos: Set<FacetValue>[] = new Array(higherOrderFacet[0].length).fill(0)
             .map(() => new Set());
         const uniqueWhiteListedValues = new Set<number>();
+        const uniqueSimilarSequences = new Set<string>();
         const pointerToTheNextPerDigitPos: number[] = new Array(higherOrderFacet[0].length).fill(0);
         const flags: Boolean[][] = [];
         return higherOrderFacet.map(facet => facet.reverse())
@@ -105,6 +106,8 @@ export class Combinator {
 
                     if (isWhite) {
                         uniqueWhiteListedValues.add(subNumber);
+                        const subFacet = numberSubstr.split('').reverse();
+                        subFacet.forEach((value, pos) => uniqueValuesPerDigitPos[pos].add(value));
                     }
 
                     return isWhite;
@@ -126,8 +129,38 @@ export class Combinator {
                 const hasUnique = uniqueFlags.some(isUnique => isUnique);
                 if (hasUnique) {
                     flags.push(uniqueFlags);
+                    return hasUnique;
                 }
-                return hasUnique;
+
+                // Sequence of identical digits
+                let sequence = '';
+                let hasUniqueSimilarSequence = false;
+                for (let i = 0; i < numberStr.length; i++) {
+                    const isLastDigit = numberStr.length - 1 === i;
+                    const digit = numberStr[i];
+                    if (!sequence.length) {
+                        sequence += digit;
+                        continue;
+                    }
+
+                    // eslint-disable-next-line eigenspace-script/conditions
+                    if (sequence[sequence.length - 1] === digit) {
+                        sequence += digit;
+                        if (!isLastDigit) {
+                            continue;
+                        }
+                    }
+
+                    if (1 < sequence.length && !uniqueSimilarSequences.has(sequence)) {
+                        uniqueSimilarSequences.add(sequence);
+                        hasUniqueSimilarSequence = true;
+                        flags.push([]);
+                        break;
+                    }
+
+                    sequence = digit;
+                }
+                return hasUniqueSimilarSequence;
             })
             .map((facet, index) => {
                 const uniqueFlags = flags[index];
