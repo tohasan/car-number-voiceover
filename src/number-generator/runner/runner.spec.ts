@@ -32,7 +32,7 @@ describe('Runner', () => {
             runner.run(args);
 
             const numbers = fs.readFileSync(outputFile, 'utf8');
-            expect(numbers).toContain('О124НМ 79');
+            expect(numbers).toContain('Н105МН 79');
         });
     });
 

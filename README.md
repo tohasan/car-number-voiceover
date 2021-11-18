@@ -28,6 +28,13 @@ $ yarn generate:numbers \
     --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[78,79]"
 ```
 
+A single line version of the command if multiline does not work for
+you:
+
+```shell
+$ yarn generate:numbers --pattern "[L, D, D, D, L, L, S, R]" --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[47,60,78,177]"
+```
+
 ### Voiceover Generator
 
 A multiline version of the command:
