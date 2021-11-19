@@ -26,13 +26,17 @@ describe('Runner', () => {
                 ...baseCmdArgs,
                 '--pattern', pattern,
                 '--definitions', ...definitions,
-                '--output', outputFile
+                '--output', outputFile,
+                '--count', '2'
             ];
 
             runner.run(args);
 
             const numbers = fs.readFileSync(outputFile, 'utf8');
-            expect(numbers).toContain('Н105МН 79');
+            expect(numbers).toEqual([
+                'М001ММ 78',
+                'Н002МН 79'
+            ].join('\n'));
         });
     });
 

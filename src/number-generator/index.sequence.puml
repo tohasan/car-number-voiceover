@@ -16,12 +16,12 @@ Analyst -> index: generate:numbers <args>
 index -> Runner: run(args)
 
 Runner -> GeneratorCli: parse(args)
-Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output }
+Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output, count }
 
 Runner -> PatternParser: parse(pattern, definitions)
 Runner <- PatternParser: facets: Facet[]
 
-Runner -> Generator: generate(facets)
+Runner -> Generator: generate(facets, count)
 Runner <- Generator: numbers: CarNumber[]
 
 Runner -> Exporter: export(output, numbers)

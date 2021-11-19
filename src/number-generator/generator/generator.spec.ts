@@ -1,7 +1,10 @@
 import { Generator } from './generator';
+import { dependencies } from '../../common/utils/specs/dependencies';
 
 describe('Generator', () => {
     let generator: Generator;
+
+    const { output } = dependencies;
 
     beforeEach(() => {
         generator = new Generator();
@@ -197,6 +200,79 @@ describe('Generator', () => {
                 'B10',
                 'A12'
             ]);
+        });
+
+        it('should inform that the representative number is less than the requested number', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+            generator.generate(facets, 2);
+            expect(output.getLogs()).toContain('generate a set less than the representative one');
+        });
+
+        it('should generate no more than required number of car numbers ' +
+            'even if required number is less than the minimal representative number of car numbers', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+
+            const combinations = generator.generate(facets, 2);
+
+            expect(combinations).toEqual([
+                'A1',
+                'B2'
+            ]);
+        });
+
+        it('should inform that the representative number is greater than the requested number', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+            generator.generate(facets, 5);
+            expect(output.getLogs()).toContain('It exceeds the representative count');
+        });
+
+        it('should generate more unique combinations than the representative number of car numbers', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+
+            const combinations = generator.generate(facets, 5);
+
+            expect(combinations).toEqual([
+                'A1',
+                'B2',
+                'A3',
+                'B1',
+                'A2'
+            ]);
+        });
+
+        it('should not generate more than the maximum number of unique combinations ' +
+            'even if the required number is greater', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+
+            const combinations = generator.generate(facets, 8);
+
+            expect(combinations).toEqual([
+                'A1',
+                'B2',
+                'A3',
+                'B1',
+                'A2',
+                'B3'
+            ]);
+        });
+
+        it('should warn that requested number exceeds the limit of unique combinations', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+            generator.generate(facets, 8);
+            expect(output.getLogs()).toContain('It exceeds the maximum count');
+        });
+
+        it('should inform that requested exactly the representative count', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+            generator.generate(facets, 3);
+            expect(output.getLogs()).toContain('Bullseye!');
+        });
+
+        it('should inform that it will generate the representative number of car numbers ' +
+            'if there is no required number', () => {
+            const facets = [['A', 'B'], ['1', '2', '3']];
+            generator.generate(facets);
+            expect(output.getLogs()).toContain('By default the representative count will be generated');
         });
     });
 });

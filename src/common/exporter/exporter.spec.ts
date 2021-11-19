@@ -23,7 +23,6 @@ describe('Exporter', () => {
         });
 
         it('should create the full path to the file if it does not exist', () => {
-            fs.rmdirSync(nestedOutputDir, { recursive: true });
             exporter.export(nestedFilename, records);
             expect(getFileContent(nestedFilename)).toEqual(records.join('\n'));
         });

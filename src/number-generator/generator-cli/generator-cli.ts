@@ -25,6 +25,11 @@ export class GeneratorCli {
                 description: 'Define a file to export the car numbers',
                 default: './output/numbers.txt'
             })
+            .option('count', {
+                alias: 'c',
+                type: 'number',
+                description: 'A number of car numbers you want to generate'
+            })
             .version(packageJson.version)
             .demandOption(['pattern', 'definitions'])
             .showHelpOnFail(true)

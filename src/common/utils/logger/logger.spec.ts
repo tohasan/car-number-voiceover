@@ -13,7 +13,7 @@ describe('Logger', () => {
 
         it('should output a specified message', () => {
             logger.log('message');
-            expect(output.getLastLog()).toEqual('message');
+            expect(output.getLogs()).toEqual('message');
         });
     });
 });

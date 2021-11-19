@@ -1,8 +1,11 @@
 import { CarNumber } from '../../common/entities/car-number';
 import { Facet, FacetValue } from '../../common/entities/facet';
 import { DisjointCombination } from '../../common/entities/disjoint-combination';
+import { Logger } from '../../common/utils/logger/logger';
 
 export class Generator {
+    private logger = new Logger();
+
     private whiteRules: RangeRule[] = [
         { range: [10, 19], type: RangeMatchingType.INCLUDE }
     ];
@@ -10,11 +13,27 @@ export class Generator {
         { range: [0, 0], type: RangeMatchingType.EXACT }
     ];
 
-    generate(facets: Facet[]): CarNumber[] {
+    generate(facets: Facet[], requestedCount?: number): CarNumber[] {
         const facetGroups = this.groupSimilarFacets(facets);
         const higherOrderFacets = this.generateHigherOrderFacets(facetGroups);
-        return this.makeMix(higherOrderFacets)
-            .map(set => set.join(''));
+        const maxCount = this.calculateCombinationsLimit(higherOrderFacets);
+        const representativeCount = this.calculateRepresentativeCount(higherOrderFacets);
+        const count = requestedCount ?? representativeCount;
+        const maxOffset = Math.min(maxCount, count) / representativeCount;
+
+        this.provideInfoAboutRequestedCount(maxCount, representativeCount, requestedCount);
+        this.logger.log('Generating numbers...');
+
+        let resultSet: CarNumber[] = [];
+
+        for (let offset = 0; offset < maxOffset; offset++) {
+            const subset = this.makeMix(higherOrderFacets, offset)
+                .map(set => set.join(''));
+            resultSet = [...resultSet, ...subset];
+        }
+
+        this.logger.log(`Number of generated car numbers: ${count}`);
+        return resultSet.slice(0, count);
     }
 
     private groupSimilarFacets(facets: Facet[]): Facet[][] {
@@ -208,12 +227,52 @@ export class Generator {
         });
     }
 
-    private makeMix(facets: HigherOrderFacet[]): DisjointCombination[] {
+    // noinspection JSMethodCanBeStatic
+    private calculateCombinationsLimit(facets: HigherOrderFacet[]): number {
+        return facets.reduce((count, facet) => count * facet.length, 1);
+    }
+
+    private calculateRepresentativeCount(facets: HigherOrderFacet[]): number {
+        return this.getMaxLength(facets);
+    }
+
+    private provideInfoAboutRequestedCount(
+        maxCount: number,
+        representativeCount: number,
+        requestedCount?: number
+    ): void {
+        this.logger.log(`The representative set of car numbers consists of: ${representativeCount} items`);
+
+        if (!requestedCount) {
+            this.logger.log(
+                'You did not request a special set size. ' +
+                'You can use the parameter `--count`. By default the representative count will be generated.'
+            );
+            return;
+        }
+
+        this.logger.log(`The requested count: ${requestedCount}`);
+        if (maxCount < requestedCount) {
+            this.logger.log('Pay attention! It exceeds the maximum count the generator can produce.');
+        } else if (representativeCount < requestedCount) {
+            this.logger.log(
+                'It exceeds the representative count. ' +
+                'That\'s okay. The only thing is that you can generate a bit less.'
+            );
+        } else if (representativeCount === requestedCount) {
+            this.logger.log('Bullseye! You know how to choose numbers!');
+        } else {
+            this.logger.log('Pay attention! You are going to generate a set less than the representative one.');
+        }
+    }
+
+    private makeMix(facets: HigherOrderFacet[], offset: number): DisjointCombination[] {
         const maxLength = this.getMaxLength(facets);
+        const offsets = this.calculateOffsetPerFacet(facets, offset);
 
         const result = [];
         for (let i = 0; i < maxLength; i++) {
-            result.push(facets.map(facet => facet[i % facet.length]).flat());
+            result.push(facets.map((facet, index) => facet[(i + offsets[index]) % facet.length]).flat());
         }
 
         return result;
@@ -224,6 +283,25 @@ export class Generator {
             (max, facet) => Math.max(max, facet.length),
             0
         );
+    }
+
+    private calculateOffsetPerFacet(facets: HigherOrderFacet[], offset: number): number[] {
+        const maxLength = this.getMaxLength(facets);
+
+        const reversedFacets = [...facets].reverse();
+        const offsetsPerFacet: number[] = new Array(facets.length).fill(0);
+        for (let restOffset = offset, i = 0; Boolean(restOffset); i++) {
+            const facet = reversedFacets[i];
+
+            if (facet.length === maxLength) {
+                continue;
+            }
+
+            offsetsPerFacet[i] = restOffset % facet.length;
+            restOffset = Math.floor(restOffset / facet.length);
+        }
+
+        return offsetsPerFacet.reverse();
     }
 }
 

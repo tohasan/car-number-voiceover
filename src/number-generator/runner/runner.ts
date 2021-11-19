@@ -14,12 +14,11 @@ export class Runner {
     run(args: string[]): void {
         const startTime = Date.now();
 
-        const { pattern, definitions, output } = this.cli.parse(args);
+        const { pattern, definitions, output, count } = this.cli.parse(args);
         const facets = this.patternParser.parse(pattern, definitions);
-        const carNumbers = this.generator.generate(facets);
+        const carNumbers = this.generator.generate(facets, count);
         this.exporter.export(output, carNumbers);
 
-        this.logger.log(`Number of generated car numbers: ${carNumbers.length}`);
         this.logger.log(`You can find the result in the file: ${output}`);
         this.logger.log(`Time spent: ${Date.now() - startTime} ms`);
     }

@@ -25,14 +25,15 @@ You can use more complicated patterns. For instance:
 ```shell
 $ yarn generate:numbers \
     --pattern "[L, D, D, D, L, L, S, R]" \
-    --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[78,79]"
+    --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[47,60,78,79]" \
+    --count 500
 ```
 
 A single line version of the command if multiline does not work for
 you:
 
 ```shell
-$ yarn generate:numbers --pattern "[L, D, D, D, L, L, S, R]" --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[47,60,78,177]"
+$ yarn generate:numbers --pattern "[L, D, D, D, L, L, S, R]" --definitions "L=[А,В,Е,К,М,Н,О,Р,С,Т,У,Х]" "D=[0-9]" "S=[ ]" "R=[47,60,78,177]" --count 500
 ```
 
 ### Voiceover Generator

@@ -32,11 +32,10 @@ describe('GeneratorCli', () => {
 
         it('should set a default value for the output filename', () => {
             const args = cli.parse(requiredArgs);
-
             expect(args.output).toEqual('./output/numbers.txt');
         });
 
-        it('should parse the output filename', () => {
+        it('should parse a provided output filename', () => {
             const outputFile = `${__dirname}/output/numbers.txt`;
             const cmdArgs = [
                 ...requiredArgs,
@@ -46,6 +45,22 @@ describe('GeneratorCli', () => {
             const args = cli.parse(cmdArgs);
 
             expect(args.output).toEqual(outputFile);
+        });
+
+        it('should not set any default value for generating number of car numbers', () => {
+            const args = cli.parse(requiredArgs);
+            expect(args.count).toBeUndefined();
+        });
+
+        it('should parse a provided number of car numbers required to be generated', () => {
+            const cmdArgs = [
+                ...requiredArgs,
+                '--count', '500'
+            ];
+
+            const args = cli.parse(cmdArgs);
+
+            expect(args.count).toEqual(500);
         });
     });
 });
