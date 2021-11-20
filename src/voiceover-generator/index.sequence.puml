@@ -18,7 +18,7 @@ Analyst -> index: generate:numbers <args>
 index -> Runner: run(args)
 
 Runner -> GeneratorCli: parse(args)
-Runner <- GeneratorCli: CliArguments\n{ dictionary, input, output }
+Runner <- GeneratorCli: CliArguments\n{ dictionary, input, output, countPerNumber }
 
 Runner -> CarNumbersReader: read(input)
 Runner <- CarNumbersReader: numbers: CarNumber[]
@@ -29,7 +29,7 @@ Runner <- DictionaryReader: dict: VoiceoverDictionary
 Runner -> FacetsGenerator: generate(numbers, keys(dict))
 Runner <- FacetsGenerator: keySets: VoiceoverKey[][]
 
-Runner -> Generator: generate(keySets, dict)
+Runner -> Generator: generate(keySets, dict, countPerNumber)
 Runner <- Generator: voiceovers: Voiceover[]
 
 Runner -> CsvExporter: export(output, voiceovers)

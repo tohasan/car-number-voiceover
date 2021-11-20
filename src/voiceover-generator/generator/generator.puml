@@ -1,7 +1,7 @@
 @startuml
 
 class Generator {
-    + generate(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): Voiceover[]
+    + generate(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary, countPerKey?: number): Voiceover[]
 }
 
 @enduml

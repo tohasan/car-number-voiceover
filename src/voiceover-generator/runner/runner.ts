@@ -19,11 +19,11 @@ export class Runner {
     run(args: string[]): void {
         const startTime = Date.now();
 
-        const { input, dictionary, output } = this.cli.parse(args);
+        const { input, dictionary, output, countPerNumber } = this.cli.parse(args);
         const carNumbers = this.carNumbersReader.read(input);
         const dict = this.dictionaryReader.read(dictionary);
         const keySets = this.facetsGenerator.generate(carNumbers, Object.keys(dict));
-        const voiceovers = this.generator.generate(keySets, dict);
+        const voiceovers = this.generator.generate(keySets, dict, countPerNumber);
         this.exporter.export(output, voiceovers);
 
         this.logger.log(`Number of input car numbers: ${carNumbers.length}`);

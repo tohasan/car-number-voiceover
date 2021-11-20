@@ -5,3 +5,4 @@ export type NumericString = string;
 export type FacetRange = string;
 export type FacetValue = LetterChar | DigitChar | SpaceChar | NumericString | FacetRange;
 export type Facet = FacetValue[];
+export type HigherOrderFacet = Facet[];

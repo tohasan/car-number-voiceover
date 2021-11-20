@@ -44,14 +44,15 @@ A multiline version of the command:
 $yarn generate:voiceover \
     --input assets/voiceover/example/numbers.txt \
     --dictionary assets/voiceover/example/voiceover.dictionary.csv \
-    --output output/voiceovers.csv
+    --output output/voiceovers.csv \
+    --count-per-number 3
 ```
 
 A single line version of the command if multiline does not work for
 you:
 
 ```shell
-$yarn generate:voiceover --input assets/voiceover/example/numbers.txt --dictionary assets/voiceover/example/voiceover.dictionary.csv --output output/voiceovers.csv
+$yarn generate:voiceover --input assets/voiceover/example/numbers.txt --dictionary assets/voiceover/example/voiceover.dictionary.csv --output output/voiceovers.csv --count-per-number 3
 ```
 
 If you do not specify the output file, by default you should find the

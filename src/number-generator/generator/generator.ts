@@ -1,10 +1,12 @@
 import { CarNumber } from '../../common/entities/car-number';
-import { Facet, FacetValue } from '../../common/entities/facet';
-import { DisjointCombination } from '../../common/entities/disjoint-combination';
+import { Facet, FacetValue, HigherOrderFacet } from '../../common/entities/facet';
 import { Logger } from '../../common/utils/logger/logger';
+import { Combinator } from '../../common/combinator/combinator';
+import { FacetUtils } from '../../common/utils/facet-utils/facet.utils';
 
 export class Generator {
     private logger = new Logger();
+    private combinator = new Combinator();
 
     private whiteRules: RangeRule[] = [
         { range: [10, 19], type: RangeMatchingType.INCLUDE }
@@ -27,7 +29,7 @@ export class Generator {
         let resultSet: CarNumber[] = [];
 
         for (let offset = 0; offset < maxOffset; offset++) {
-            const subset = this.makeMix(higherOrderFacets, offset)
+            const subset = this.combinator.mixIndependently(higherOrderFacets, offset)
                 .map(set => set.join(''));
             resultSet = [...resultSet, ...subset];
         }
@@ -36,6 +38,7 @@ export class Generator {
         return resultSet.slice(0, count);
     }
 
+    // noinspection JSMethodCanBeStatic
     private groupSimilarFacets(facets: Facet[]): Facet[][] {
         const groups: Facet[][] = [];
         let group: Facet[] = [];
@@ -45,13 +48,13 @@ export class Generator {
                 continue;
             }
 
-            const isOnlyLetters = this.containsOnlyLetters(facet) && this.containsOnlyLetters(group[0]);
+            const isOnlyLetters = FacetUtils.containsOnlyLetters(facet) && FacetUtils.containsOnlyLetters(group[0]);
             if (isOnlyLetters) {
                 group.push(facet);
                 continue;
             }
 
-            const isOnlyDigits = this.containsOnlyDigits(facet) && this.containsOnlyDigits(group[0]);
+            const isOnlyDigits = FacetUtils.containsOnlyDigits(facet) && FacetUtils.containsOnlyDigits(group[0]);
             if (isOnlyDigits) {
                 group.push(facet);
                 continue;
@@ -65,32 +68,13 @@ export class Generator {
         return groups;
     }
 
-    // noinspection JSMethodCanBeStatic
-    private containsOnlyLetters(facet: Facet): boolean {
-        return facet.every(value => /[a-zа-я]/i.test(value));
-    }
-
-    // noinspection JSMethodCanBeStatic
-    private containsOnlyDigits(facet: Facet): boolean {
-        return facet.every(value => /[0-9]/.test(value));
-    }
-
     private generateHigherOrderFacets(facetGroups: Facet[][]): HigherOrderFacet[] {
-        return facetGroups.map(facetGroup => this.cartesianProduct(facetGroup))
+        return this.combinator.generateHigherOrderFacets(facetGroups)
             .map(higherOrderFacet => this.filterHigherOrderFacet(higherOrderFacet));
     }
 
-    private cartesianProduct(facets: Facet[]): DisjointCombination[] {
-        return facets.reduce<DisjointCombination[]>(
-            (accSets, facet) => {
-                return accSets.flatMap(accSet => facet.map(value => [...accSet, value]));
-            },
-            [[]]
-        );
-    }
-
     private filterHigherOrderFacet(higherOrderFacet: HigherOrderFacet): HigherOrderFacet {
-        if (!this.containsOnlyDigits(higherOrderFacet[0])) {
+        if (!FacetUtils.containsOnlyDigits(higherOrderFacet[0])) {
             return higherOrderFacet;
         }
 
@@ -232,8 +216,9 @@ export class Generator {
         return facets.reduce((count, facet) => count * facet.length, 1);
     }
 
+    // noinspection JSMethodCanBeStatic
     private calculateRepresentativeCount(facets: HigherOrderFacet[]): number {
-        return this.getMaxLength(facets);
+        return FacetUtils.getMaxLength(facets);
     }
 
     private provideInfoAboutRequestedCount(
@@ -265,48 +250,7 @@ export class Generator {
             this.logger.log('Pay attention! You are going to generate a set less than the representative one.');
         }
     }
-
-    private makeMix(facets: HigherOrderFacet[], offset: number): DisjointCombination[] {
-        const maxLength = this.getMaxLength(facets);
-        const offsets = this.calculateOffsetPerFacet(facets, offset);
-
-        const result = [];
-        for (let i = 0; i < maxLength; i++) {
-            result.push(facets.map((facet, index) => facet[(i + offsets[index]) % facet.length]).flat());
-        }
-
-        return result;
-    }
-
-    private getMaxLength(facets: HigherOrderFacet[]): Max {
-        return facets.reduce(
-            (max, facet) => Math.max(max, facet.length),
-            0
-        );
-    }
-
-    private calculateOffsetPerFacet(facets: HigherOrderFacet[], offset: number): number[] {
-        const maxLength = this.getMaxLength(facets);
-
-        const reversedFacets = [...facets].reverse();
-        const offsetsPerFacet: number[] = new Array(facets.length).fill(0);
-        for (let restOffset = offset, i = 0; Boolean(restOffset); i++) {
-            const facet = reversedFacets[i];
-
-            if (facet.length === maxLength) {
-                continue;
-            }
-
-            offsetsPerFacet[i] = restOffset % facet.length;
-            restOffset = Math.floor(restOffset / facet.length);
-        }
-
-        return offsetsPerFacet.reverse();
-    }
 }
-
-type Max = number;
-type HigherOrderFacet = Facet[];
 
 enum RangeMatchingType {
     EXACT = 'exact',

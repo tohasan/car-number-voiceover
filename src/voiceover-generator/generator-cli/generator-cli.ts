@@ -25,6 +25,11 @@ export class GeneratorCli {
                 description: 'A file to export generated voiceovers',
                 default: './output/voiceovers.csv'
             })
+            .option('count-per-number', {
+                alias: 'cpn',
+                type: 'number',
+                description: 'A number of voiceovers you want to generate per car number'
+            })
             .version(packageJson.version)
             .demandOption(['input', 'dictionary'])
             .showHelpOnFail(true)

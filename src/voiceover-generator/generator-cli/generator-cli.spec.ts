@@ -44,5 +44,21 @@ describe('GeneratorCli', () => {
             const options = cli.parse(requiredArgs);
             expect(options.output).toEqual('./output/voiceovers.csv');
         });
+
+        it('should not set any default value for number of voiceovers per car number', () => {
+            const args = cli.parse(requiredArgs);
+            expect(args.countPerNumber).toBeUndefined();
+        });
+
+        it('should parse a provided number of voiceovers per car number', () => {
+            const cmdArgs = [
+                ...requiredArgs,
+                '--count-per-number', '3'
+            ];
+
+            const args = cli.parse(cmdArgs);
+
+            expect(args.countPerNumber).toEqual(3);
+        });
     });
 });

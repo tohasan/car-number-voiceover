@@ -24,13 +24,18 @@ describe('Runner', () => {
                 ...baseCmdArgs,
                 '--dictionary', dictionaryFile,
                 '--input', inputFile,
-                '--output', outputFile
+                '--output', outputFile,
+                '--count-per-number', '3'
             ];
 
             runner.run(args);
 
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
-            expect(voiceovers).toContain('А002ВВ 78;а два ноля два дубль вэ регион семьдесят восемь');
+            expect(voiceovers).toEqual([
+                'А002ВВ 78;а ноль ноль два вэ вэ регион семь восемь',
+                'А002ВВ 78;а нуль нуль двойка в в регион семерка восьмерка',
+                'А002ВВ 78;а ноль ноль два вэ вэ регион семьдесят восемь'
+            ].join('\n'));
         });
     });
 

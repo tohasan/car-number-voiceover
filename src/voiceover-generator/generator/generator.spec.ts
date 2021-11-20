@@ -10,59 +10,211 @@ describe('Generator', () => {
 
     describe('#generate', () => {
 
-        it('should generate voiceovers by given key sets and dictionary', () => {
-            // car number: 'А001МН 78'
+        it('should generate representative set', () => {
             const keySets = [
-                ['А', '00', '1', 'М', 'Н', ' ', '78'],
-                ['А', '00', '1', 'М', 'Н', ' ', '7', '8'],
-                ['А', '0', '0', '1', 'М', 'Н', ' ', '78'],
-                ['А', '0', '0', '1', 'М', 'Н', ' ', '7', '8']
+                ['0', '7', '8']
             ];
-            // noinspection NonAsciiCharacters
             const dictionary = {
-                'А': ['а'],
-                'М': ['эм', 'мэ'],
-                'Н': ['эн'],
-                '1': ['единица'],
-                '7': ['семь'],
-                '8': ['восемь'],
                 '0': ['нуль', 'ноль'],
-                ' ': ['регион'],
-                '78': ['семьдесят восемь'],
-                '00': ['два нуля', 'два ноля', 'дубль ноль']
+                '7': ['семь', 'семёрка'],
+                '8': ['восемь', 'восьмёрка']
             };
 
             const voiceovers = generator.generate(keySets, dictionary);
 
             expect(voiceovers).toEqual([
-                { name: 'А001МН 78', options: ['а два нуля единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а два нуля единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а два ноля единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а два ноля единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а дубль ноль единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а дубль ноль единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а два нуля единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а два нуля единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а два ноля единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а два ноля единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а дубль ноль единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а дубль ноль единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а нуль нуль единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а нуль нуль единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а нуль ноль единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а нуль ноль единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а ноль нуль единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а ноль нуль единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а ноль ноль единица эм эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а ноль ноль единица мэ эн регион семьдесят восемь'] },
-                { name: 'А001МН 78', options: ['а нуль нуль единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а нуль нуль единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а нуль ноль единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а нуль ноль единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а ноль нуль единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а ноль нуль единица мэ эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а ноль ноль единица эм эн регион семь восемь'] },
-                { name: 'А001МН 78', options: ['а ноль ноль единица мэ эн регион семь восемь'] }
+                { name: '078', options: ['нуль семь восемь'] },
+                { name: '078', options: ['ноль семёрка восьмёрка'] }
+            ] as Voiceover[]);
+        });
+
+        it('should not generate different voiceovers for the same letter or digit for the same combination', () => {
+            const keySets = [
+                ['0', '0', '0', '78']
+            ];
+            const dictionary = {
+                '0': ['нуль', 'ноль'],
+                '78': ['семьдесят восемь']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary);
+
+            expect(voiceovers).toEqual([
+                { name: '00078', options: ['нуль нуль нуль семьдесят восемь'] },
+                { name: '00078', options: ['ноль ноль ноль семьдесят восемь'] }
+            ] as Voiceover[]);
+        });
+
+        it('should generate representative sets of voiceovers per different keys', () => {
+            const keySets = [
+                ['М', '0', '1'],
+                ['Н', '0', '2']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                'Н': ['н'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один'],
+                '2': ['два']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] },
+                { name: 'М01', options: ['эм ноль один'] },
+                { name: 'М01', options: ['Марина нуль один'] },
+                { name: 'Н02', options: ['н нуль два'] },
+                { name: 'Н02', options: ['н ноль два'] }
+            ] as Voiceover[]);
+        });
+
+        it('should generate requested number of voiceovers for a key ' +
+            'even if the representative count is greater', () => {
+            const keySets = [
+                ['М', '0', '1']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] }
+            ] as Voiceover[]);
+        });
+
+        it('should generate requested number of voiceovers for a key ' +
+            'even if there are multiple key sets for a key', () => {
+            const keySets = [
+                ['М', '0', '0'],
+                ['М', '00']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                '0': ['нуль', 'ноль'],
+                '00': ['два ноля', 'дубль ноль', 'дублет нулей']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'М00', options: ['м нуль нуль'] },
+                { name: 'М00', options: ['мы ноль ноль'] },
+                { name: 'М00', options: ['мэ нуль нуль'] }
+            ] as Voiceover[]);
+        });
+
+        it('should generate more than the representative count if the requested number is greater', () => {
+            const keySets = [
+                ['М', '0', '1']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 8);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] },
+                { name: 'М01', options: ['эм ноль один'] },
+                { name: 'М01', options: ['Марина нуль один'] },
+                { name: 'М01', options: ['м ноль один'] },
+                { name: 'М01', options: ['мы нуль один'] },
+                { name: 'М01', options: ['мэ ноль один'] }
+            ] as Voiceover[]);
+        });
+
+        it('should continue iterating combinations for the next key', () => {
+            const keySets = [
+                ['М', '0', '1']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                'Н': ['эн', 'нэ'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один'],
+                '2': ['два']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] },
+                { name: 'Н02', options: ['эн ноль два'] },
+                { name: 'Н02', options: ['нэ нуль два'] },
+                { name: 'Н02', options: ['эн нуль два'] }
+            ] as Voiceover[]);
+        });
+
+        it('should not generate more than max unique combinations ' +
+            'even if the requested number is greater', () => {
+            const keySets = [
+                ['М', '0', '1']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 20);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] },
+                { name: 'М01', options: ['эм ноль один'] },
+                { name: 'М01', options: ['Марина нуль один'] },
+                { name: 'М01', options: ['м ноль один'] },
+                { name: 'М01', options: ['мы нуль один'] },
+                { name: 'М01', options: ['мэ ноль один'] },
+                { name: 'М01', options: ['эм нуль один'] },
+                { name: 'М01', options: ['Марина ноль один'] }
+            ] as Voiceover[]);
+        });
+
+        it('should not generate more than maximum when processing multiple keys', () => {
+            const keySets = [
+                ['М', '0', '1'],
+                ['Н', '0', '2']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                'Н': ['н'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один'],
+                '2': ['два']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01', options: ['м нуль один'] },
+                { name: 'М01', options: ['мы ноль один'] },
+                { name: 'М01', options: ['мэ нуль один'] },
+                { name: 'Н02', options: ['н ноль два'] },
+                { name: 'Н02', options: ['н нуль два'] }
             ] as Voiceover[]);
         });
     });

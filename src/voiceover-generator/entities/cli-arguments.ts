@@ -4,5 +4,6 @@ export interface CliArguments {
     input: Filename;
     dictionary: Filename;
     output: Filename;
+    countPerNumber?: number;
     _: string[];
 }
