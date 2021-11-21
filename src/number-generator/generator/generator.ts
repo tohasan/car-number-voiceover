@@ -20,22 +20,13 @@ export class Generator {
         const higherOrderFacets = this.generateHigherOrderFacets(facetGroups);
         const maxCount = this.combinator.calculateCombinationsLimit(higherOrderFacets);
         const representativeCount = this.combinator.calculateRepresentativeCount(higherOrderFacets);
-        const count = requestedCount ?? representativeCount;
-        const maxOffset = Math.min(maxCount, count) / representativeCount;
 
         this.provideInfoAboutRequestedCount(maxCount, representativeCount, requestedCount);
         this.logger.log('Generating numbers...');
+        const resultSet = this.combinator.generateRequestedCount(higherOrderFacets, requestedCount);
 
-        let resultSet: CarNumber[] = [];
-
-        for (let offset = 0; offset < maxOffset; offset++) {
-            const subset = this.combinator.mixIndependently(higherOrderFacets, offset)
-                .map(set => set.join(''));
-            resultSet = [...resultSet, ...subset];
-        }
-
-        this.logger.log(`Number of generated car numbers: ${count}`);
-        return resultSet.slice(0, count);
+        this.logger.log(`Number of generated car numbers: ${resultSet.length}`);
+        return resultSet.map(combination => combination.join(''));
     }
 
     // noinspection JSMethodCanBeStatic

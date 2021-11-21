@@ -187,7 +187,8 @@ describe('Generator', () => {
                 { name: 'М01', options: ['мы ноль один'] },
                 { name: 'М01', options: ['мэ нуль один'] },
                 { name: 'Н02', options: ['эн нуль два'] },
-                { name: 'Н02', options: ['нэ ноль два'] }
+                { name: 'Н02', options: ['нэ ноль два'] },
+                { name: 'Н02', options: ['нэ нуль два'] }
             ] as Voiceover[]);
         });
 
@@ -218,7 +219,7 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
-        it('should not generate more than representative count ' +
+        it('should not generate more than max unique combinations ' +
             'even if the requested number is greater', () => {
             const keySets = [
                 ['М', '0', '1']
@@ -230,14 +231,19 @@ describe('Generator', () => {
                 '1': ['один']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 8);
+            const voiceovers = generator.generate(keySets, dictionary, 20);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
                 { name: 'М01', options: ['мы ноль один'] },
                 { name: 'М01', options: ['мэ нуль один'] },
                 { name: 'М01', options: ['эм ноль один'] },
-                { name: 'М01', options: ['Марина нуль один'] }
+                { name: 'М01', options: ['Марина нуль один'] },
+                { name: 'М01', options: ['м ноль один'] },
+                { name: 'М01', options: ['мы нуль один'] },
+                { name: 'М01', options: ['мэ ноль один'] },
+                { name: 'М01', options: ['эм нуль один'] },
+                { name: 'М01', options: ['Марина ноль один'] }
             ] as Voiceover[]);
         });
 
@@ -261,8 +267,8 @@ describe('Generator', () => {
                 { name: 'М01', options: ['м нуль один'] },
                 { name: 'М01', options: ['мы ноль один'] },
                 { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'Н02', options: ['н ноль два'] },
-                { name: 'Н02', options: ['н нуль два'] }
+                { name: 'Н02', options: ['н нуль два'] },
+                { name: 'Н02', options: ['н ноль два'] }
             ] as Voiceover[]);
         });
     });

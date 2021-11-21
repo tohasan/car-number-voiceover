@@ -26,6 +26,22 @@ export class Combinator {
         return result;
     }
 
+    generateRequestedCount(facets: HigherOrderFacet[], requestedCount?: number): DisjointCombination[] {
+        const maxCount = this.calculateCombinationsLimit(facets);
+        const representativeCount = this.calculateRepresentativeCount(facets);
+        const count = requestedCount ?? representativeCount;
+        const maxOffset = Math.min(maxCount, count) / representativeCount;
+
+        let resultSet: DisjointCombination[] = [];
+
+        for (let offset = 0; offset < maxOffset; offset++) {
+            const subset = this.mixIndependently(facets, offset);
+            resultSet = [...resultSet, ...subset];
+        }
+
+        return resultSet.slice(0, count);
+    }
+
     generateHigherOrderFacets(facetGroups: Facet[][]): HigherOrderFacet[] {
         return facetGroups.map(facetGroup => this.cartesianProduct(facetGroup));
     }
