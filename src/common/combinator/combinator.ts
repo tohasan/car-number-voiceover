@@ -30,6 +30,14 @@ export class Combinator {
         return facetGroups.map(facetGroup => this.cartesianProduct(facetGroup));
     }
 
+    calculateCombinationsLimit(facets: HigherOrderFacet[]): number {
+        return facets.reduce((count, facet) => count * facet.length, 1);
+    }
+
+    calculateRepresentativeCount(facets: HigherOrderFacet[]): number {
+        return FacetUtils.getMaxLength(facets);
+    }
+
     // noinspection JSMethodCanBeStatic
     private calculateOffsetPerFacet(facets: HigherOrderFacet[], offset: number): number[] {
         const maxLength = FacetUtils.getMaxLength(facets);

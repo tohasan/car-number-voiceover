@@ -18,8 +18,8 @@ export class Generator {
     generate(facets: Facet[], requestedCount?: number): CarNumber[] {
         const facetGroups = this.groupSimilarFacets(facets);
         const higherOrderFacets = this.generateHigherOrderFacets(facetGroups);
-        const maxCount = this.calculateCombinationsLimit(higherOrderFacets);
-        const representativeCount = this.calculateRepresentativeCount(higherOrderFacets);
+        const maxCount = this.combinator.calculateCombinationsLimit(higherOrderFacets);
+        const representativeCount = this.combinator.calculateRepresentativeCount(higherOrderFacets);
         const count = requestedCount ?? representativeCount;
         const maxOffset = Math.min(maxCount, count) / representativeCount;
 
@@ -209,16 +209,6 @@ export class Generator {
             pointerToTheNextPerDigitPos[pos] = pointerToTheNext % valuesAtPosition.length;
             return nextValue;
         });
-    }
-
-    // noinspection JSMethodCanBeStatic
-    private calculateCombinationsLimit(facets: HigherOrderFacet[]): number {
-        return facets.reduce((count, facet) => count * facet.length, 1);
-    }
-
-    // noinspection JSMethodCanBeStatic
-    private calculateRepresentativeCount(facets: HigherOrderFacet[]): number {
-        return FacetUtils.getMaxLength(facets);
     }
 
     private provideInfoAboutRequestedCount(
