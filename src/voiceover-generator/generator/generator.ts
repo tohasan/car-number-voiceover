@@ -13,6 +13,19 @@ export class Generator {
             return this.generateRepresentativeSet(keySets, dictionary);
         }
 
+        return this.generateRequestedCount(keySets, dictionary, countPerKey);
+    }
+
+    private generateRepresentativeSet(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): Voiceover[] {
+        const disjointVoiceovers = this.generateDisjointSet(keySets, dictionary);
+        return this.joinVoiceoverOptions(disjointVoiceovers);
+    }
+
+    private generateRequestedCount(
+        keySets: VoiceoverKey[][],
+        dictionary: VoiceoverDictionary,
+        countPerKey: number
+    ): Voiceover[] {
         let restDictionary = dictionary;
         const keySetsGroupedByName = this.groupAllByName(keySets);
         return Array.from(keySetsGroupedByName.entries()).flatMap(([_, sets]) => {
@@ -29,11 +42,6 @@ export class Generator {
 
             return this.joinVoiceoverOptions(disjointVoiceovers);
         });
-    }
-
-    private generateRepresentativeSet(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): Voiceover[] {
-        const disjointVoiceovers = this.generateDisjointSet(keySets, dictionary);
-        return this.joinVoiceoverOptions(disjointVoiceovers);
     }
 
     // noinspection JSMethodCanBeStatic

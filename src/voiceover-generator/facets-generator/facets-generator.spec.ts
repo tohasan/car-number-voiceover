@@ -49,6 +49,15 @@ describe('FacetsGenerator', () => {
             ].join('\n'));
         });
 
+        it('should not display warning if there is nothing to warn', () => {
+            const carNumbers = ['A011 MH'];
+            const voiceoverKeys = ['A', 'M', '0', '1', ' ', 'H'];
+
+            generator.generate(carNumbers, voiceoverKeys);
+
+            expect(output.getLogs()).not.toContain('WARN The following characters are not found');
+        });
+
         it('should generate facet sets for double-positioned voiceovers', () => {
             const carNumbers = ['A011MH'];
             const voiceoverKeys = ['A', 'E', 'H', 'M', 'MH', '0', '1', '11'];

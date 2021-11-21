@@ -45,15 +45,18 @@ export class FacetsGenerator {
     }
 
     private warnAboutAbsentCharacters(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): void {
-        this.logger.log('WARN The following characters are not found in any dictionary key:');
         const notFoundChars = carNumbers.flatMap(carNumber => {
             const chars = carNumber.split('');
             return chars.filter(char => voiceoverKeys.every(key => !key.includes(char)));
         });
         const uniqueChars = Array.from(new Set(notFoundChars));
-        uniqueChars.forEach(char => {
-            this.logger.log(`  ${char} [${this.charToHex(char)}]`);
-        });
+
+        if (uniqueChars.length) {
+            this.logger.log('WARN The following characters are not found in any dictionary key:');
+            uniqueChars.forEach(char => {
+                this.logger.log(`  ${char} [${this.charToHex(char)}]`);
+            });
+        }
     }
 
     // noinspection JSMethodCanBeStatic

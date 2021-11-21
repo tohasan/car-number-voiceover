@@ -60,5 +60,21 @@ describe('GeneratorCli', () => {
 
             expect(args.countPerNumber).toEqual(3);
         });
+
+        it('should not use statistics by default', () => {
+            const args = cli.parse(requiredArgs);
+            expect(args.statistics).toEqual(false);
+        });
+
+        it('should parse the statistics flag', () => {
+            const cmdArgs = [
+                ...requiredArgs,
+                '--statistics'
+            ];
+
+            const args = cli.parse(cmdArgs);
+
+            expect(args.statistics).toEqual(true);
+        });
     });
 });
