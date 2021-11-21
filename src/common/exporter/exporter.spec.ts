@@ -36,7 +36,7 @@ describe('Exporter', () => {
 
     afterAll(() => {
         fs.rmSync(filename);
-        fs.rmdirSync(nestedOutputRoot, { recursive: true });
+        fs.rmSync(nestedOutputRoot, { recursive: true });
     });
 });
 

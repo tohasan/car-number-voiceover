@@ -41,6 +41,6 @@ describe('Runner', () => {
     });
 
     afterAll(() => {
-        fs.rmdirSync(outputDir, { recursive: true });
+        fs.rmSync(outputDir, { recursive: true });
     });
 });

@@ -14,7 +14,8 @@ export class Combinator {
         );
     }
 
-    mixIndependently(facets: HigherOrderFacet[], offset: number = 0): DisjointCombination[] {
+    // TODO: It might be private (need to rethink classes)
+    mixIndependently(facets: HigherOrderFacet[], offset: number): DisjointCombination[] {
         const maxLength = FacetUtils.getMaxLength(facets);
         const offsets = this.calculateOffsetPerFacet(facets, offset);
 
