@@ -1,7 +1,10 @@
 import { FacetsGenerator } from './facets-generator';
+import { dependencies } from '../../common/utils/specs/dependencies';
 
 describe('FacetsGenerator', () => {
     let generator: FacetsGenerator;
+
+    const { output } = dependencies;
 
     beforeEach(() => {
         generator = new FacetsGenerator();
@@ -30,6 +33,20 @@ describe('FacetsGenerator', () => {
             expect(facets).toEqual([
                 ['0', '1', '1', 'M']
             ]);
+        });
+
+        it('should warn about not found keys', () => {
+            const carNumbers = ['A011 MH'];
+            const voiceoverKeys = ['M', '0', '1'];
+
+            generator.generate(carNumbers, voiceoverKeys);
+
+            expect(output.getLogs()).toEqual([
+                'WARN The following characters are not found in any dictionary key:',
+                '  A [0x0041]',
+                '    [0x0020]',
+                '  H [0x0048]'
+            ].join('\n'));
         });
 
         it('should generate facet sets for double-positioned voiceovers', () => {
