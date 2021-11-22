@@ -41,5 +41,15 @@ describe('PatternParser', () => {
 
             expect(() => parser.parse(pattern, definitions)).toThrow('Can not find a definition for: \'L\'');
         });
+
+        it('should parse hyphen', () => {
+            const pattern = '[H]';
+            const definitions = ['H=[-]'];
+
+            const facets = parser.parse(pattern, definitions);
+
+            const [pos] = facets;
+            expect(pos).toEqual(['-']);
+        });
     });
 });

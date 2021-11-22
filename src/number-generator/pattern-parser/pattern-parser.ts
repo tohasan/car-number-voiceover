@@ -35,6 +35,10 @@ export class PatternParser {
     }
 
     private parseFacetRange(facetRangeStr: string): FacetValue[] {
+        if (this.FACET_RANGE_SEPARATOR_PATTERN === facetRangeStr) {
+            return [facetRangeStr];
+        }
+
         const [startChar, endChar] = facetRangeStr.split(this.FACET_RANGE_SEPARATOR_PATTERN);
 
         if (!endChar) {
