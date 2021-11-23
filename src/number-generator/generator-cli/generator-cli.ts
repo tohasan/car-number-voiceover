@@ -1,4 +1,4 @@
-import { CliArguments } from '../entities/cli-arguments';
+import { CliArguments } from './cli-arguments';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as packageJson from '../../../package.json';

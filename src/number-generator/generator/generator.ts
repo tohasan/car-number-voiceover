@@ -3,6 +3,7 @@ import { Facet, FacetValue, HigherOrderFacet } from '../../common/entities/facet
 import { Logger } from '../../common/utils/logger/logger';
 import { Combinator } from '../../common/combinator/combinator';
 import { FacetUtils } from '../../common/utils/facet-utils/facet.utils';
+import { GeneratingOptions } from '../../common/combinator/generating-options';
 
 export class Generator {
     private logger = new Logger();
@@ -15,15 +16,16 @@ export class Generator {
         { range: [0, 0], type: RangeMatchingType.EXACT }
     ];
 
-    generate(facets: Facet[], requestedCount?: number): CarNumber[] {
+    generate(facets: Facet[], options: GeneratingOptions = {}): CarNumber[] {
         const facetGroups = this.groupSimilarFacets(facets);
         const higherOrderFacets = this.generateHigherOrderFacets(facetGroups);
         const maxCount = this.combinator.calculateCombinationsLimit(higherOrderFacets);
         const representativeCount = this.combinator.calculateRepresentativeCount(higherOrderFacets);
 
+        const { requestedCount } = options;
         this.provideInfoAboutRequestedCount(maxCount, representativeCount, requestedCount);
         this.logger.log('Generating numbers...');
-        const resultSet = this.combinator.generateRequestedCount(higherOrderFacets, requestedCount);
+        const resultSet = this.combinator.generateRequestedCount(higherOrderFacets, options);
 
         this.logger.log(`Number of generated car numbers: ${resultSet.length}`);
         return resultSet.map(combination => combination.join(''));

@@ -1,9 +1,12 @@
 import { Facet, HigherOrderFacet } from '../entities/facet';
 import { DisjointCombination } from '../entities/disjoint-combination';
 import { FacetUtils } from '../utils/facet-utils/facet.utils';
+import { GeneratingOptions } from './generating-options';
+import { Shuffler } from '../shuffler/shuffler';
 
 // TODO: add specs
 export class Combinator {
+    private readonly shuffler = new Shuffler<DisjointCombination>();
 
     cartesianProduct(facets: Facet[]): DisjointCombination[] {
         return facets.reduce<DisjointCombination[]>(
@@ -27,9 +30,10 @@ export class Combinator {
         return result;
     }
 
-    generateRequestedCount(facets: HigherOrderFacet[], requestedCount?: number): DisjointCombination[] {
+    generateRequestedCount(facets: HigherOrderFacet[], options: GeneratingOptions): DisjointCombination[] {
         const maxCount = this.calculateCombinationsLimit(facets);
         const representativeCount = this.calculateRepresentativeCount(facets);
+        const { needToShuffle, requestedCount } = options;
         const count = requestedCount ?? representativeCount;
         const maxOffset = Math.min(maxCount, count) / representativeCount;
 
@@ -38,6 +42,10 @@ export class Combinator {
         for (let offset = 0; offset < maxOffset; offset++) {
             const subset = this.mixIndependently(facets, offset);
             resultSet = [...resultSet, ...subset];
+        }
+
+        if (needToShuffle) {
+            resultSet = this.shuffler.shuffle(resultSet);
         }
 
         return resultSet.slice(0, count);

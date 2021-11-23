@@ -204,7 +204,7 @@ describe('Generator', () => {
 
         it('should inform that the representative number is less than the requested number', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
-            generator.generate(facets, 2);
+            generator.generate(facets, { requestedCount: 2 });
             expect(output.getLogs()).toContain('generate a set less than the representative one');
         });
 
@@ -212,7 +212,7 @@ describe('Generator', () => {
             'even if required number is less than the minimal representative number of car numbers', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
 
-            const combinations = generator.generate(facets, 2);
+            const combinations = generator.generate(facets, { requestedCount: 2 });
 
             expect(combinations).toEqual([
                 'A1',
@@ -222,14 +222,14 @@ describe('Generator', () => {
 
         it('should inform that the representative number is greater than the requested number', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
-            generator.generate(facets, 5);
+            generator.generate(facets, { requestedCount: 5 });
             expect(output.getLogs()).toContain('It exceeds the representative count');
         });
 
         it('should generate more unique combinations than the representative number of car numbers', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
 
-            const combinations = generator.generate(facets, 5);
+            const combinations = generator.generate(facets, { requestedCount: 5 });
 
             expect(combinations).toEqual([
                 'A1',
@@ -244,7 +244,7 @@ describe('Generator', () => {
             'even if the required number is greater', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
 
-            const combinations = generator.generate(facets, 8);
+            const combinations = generator.generate(facets, { requestedCount: 8 });
 
             expect(combinations).toEqual([
                 'A1',
@@ -258,13 +258,13 @@ describe('Generator', () => {
 
         it('should warn that requested number exceeds the limit of unique combinations', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
-            generator.generate(facets, 8);
+            generator.generate(facets, { requestedCount: 8 });
             expect(output.getLogs()).toContain('It exceeds the maximum count');
         });
 
         it('should inform that requested exactly the representative count', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
-            generator.generate(facets, 3);
+            generator.generate(facets, { requestedCount: 3 });
             expect(output.getLogs()).toContain('Bullseye!');
         });
 
@@ -273,6 +273,33 @@ describe('Generator', () => {
             const facets = [['A', 'B'], ['1', '2', '3']];
             generator.generate(facets);
             expect(output.getLogs()).toContain('By default the representative count will be generated');
+        });
+
+        it('should shuffle results', () => {
+            const facets = [['A', 'B'], ['2', '3'], ['2', '3'], ['2', '3', '4']];
+
+            const combinations = generator.generate(facets, { needToShuffle: true });
+
+            expect(combinations).toEqual([
+                'B232',
+                'A224',
+                'A222',
+                'A233',
+                'B323',
+                'A333',
+                'B223'
+            ]);
+        });
+
+        it('should shuffle results before trimming them to required count', () => {
+            const facets = [['A', 'B'], ['2', '3'], ['2', '3'], ['2', '3', '4']];
+
+            const combinations = generator.generate(facets, { requestedCount: 2, needToShuffle: true });
+
+            expect(combinations).toEqual([
+                'B232',
+                'A224'
+            ]);
         });
     });
 });

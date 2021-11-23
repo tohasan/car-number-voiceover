@@ -1,5 +1,5 @@
 import { Shuffler } from './shuffler';
-import { CarNumber } from '../../common/entities/car-number';
+import { CarNumber } from '../entities/car-number';
 
 describe('Shuffler', () => {
     let shuffler: Shuffler<CarNumber>;

@@ -21,11 +21,8 @@ Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output, count, shu
 Runner -> PatternParser: parse(pattern, definitions)
 Runner <- PatternParser: facets: Facet[]
 
-Runner -> Generator: generate(facets, count)
+Runner -> Generator: generate(facets, { count, shuffle })
 Runner <- Generator: numbers: CarNumber[]
-
-Runner -> Shuffler: [shuffle]\nshuffle(numbers)
-Runner <- Shuffler: numbers: CarNumber[]
 
 Runner -> Exporter: export(output, numbers)
 Runner <- Exporter: output\n(default: ./output/numbers.txt)

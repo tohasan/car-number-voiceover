@@ -8,13 +8,11 @@ skinparam linetype ortho
 !include generator-cli/generator-cli.puml
 !include pattern-parser/pattern-parser.puml
 !include generator/generator.puml
-!include shuffler/shuffler.puml
 !include ../common/exporter/exporter.puml
 
 Runner o-- GeneratorCli
 Runner o-- PatternParser
 Runner o-- Generator
-Runner o-- Shuffler
 Runner o-- Exporter
 
 @enduml

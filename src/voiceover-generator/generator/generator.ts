@@ -61,7 +61,7 @@ export class Generator {
             const name = keySet.join('');
             const higherOrderFacets = this.convertToHigherOrderFacets(keySet, dictionary);
 
-            return this.combinator.generateRequestedCount(higherOrderFacets, requestedCount)
+            return this.combinator.generateRequestedCount(higherOrderFacets, { requestedCount })
                 .map(set => ({ name, options: [set] }));
         });
     }

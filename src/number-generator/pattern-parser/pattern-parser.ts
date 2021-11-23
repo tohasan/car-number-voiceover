@@ -1,5 +1,5 @@
 import { Facet, FacetValue } from '../../common/entities/facet';
-import { Definition } from '../entities/definition';
+import { Definition } from './definition';
 import { AppError } from '../../common/entities/errors/app-error';
 
 export class PatternParser {
