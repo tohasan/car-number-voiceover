@@ -12,7 +12,8 @@ module.exports = {
         '<rootDir>/src/**/*.spec.ts'
     ],
     setupFiles: [
-        '<rootDir>/config/jest/setup/console.setup.ts'
+        '<rootDir>/config/jest/setup/console.setup.ts',
+        '<rootDir>/config/jest/setup/random.setup.ts'
     ],
     setupFilesAfterEnv: [
         '<rootDir>/config/jest/env-setup/check-assertions-number.ts'

@@ -62,5 +62,21 @@ describe('GeneratorCli', () => {
 
             expect(args.count).toEqual(500);
         });
+
+        it('should set a default value for shuffle as disabled', () => {
+            const args = cli.parse(requiredArgs);
+            expect(args.shuffle).toEqual(false);
+        });
+
+        it('should parse the shuffle flag if it specified', () => {
+            const cmdArgs = [
+                ...requiredArgs,
+                '--shuffle'
+            ];
+
+            const args = cli.parse(cmdArgs);
+
+            expect(args.shuffle).toEqual(true);
+        });
     });
 });

@@ -16,13 +16,16 @@ Analyst -> index: generate:numbers <args>
 index -> Runner: run(args)
 
 Runner -> GeneratorCli: parse(args)
-Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output, count }
+Runner <- GeneratorCli: CliArguments\n{ pattern, definitions, output, count, shuffle }
 
 Runner -> PatternParser: parse(pattern, definitions)
 Runner <- PatternParser: facets: Facet[]
 
 Runner -> Generator: generate(facets, count)
 Runner <- Generator: numbers: CarNumber[]
+
+Runner -> Shuffler: [shuffle]\nshuffle(numbers)
+Runner <- Shuffler: numbers: CarNumber[]
 
 Runner -> Exporter: export(output, numbers)
 Runner <- Exporter: output\n(default: ./output/numbers.txt)

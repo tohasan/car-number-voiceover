@@ -1,0 +1,11 @@
+@startuml
+
+class Shuffler<T> {
+    + shuffle(items: T[]): T[]
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant Shuffler
+@enduml

@@ -27,15 +27,17 @@ describe('Runner', () => {
                 '--pattern', pattern,
                 '--definitions', ...definitions,
                 '--output', outputFile,
-                '--count', '2'
+                '--count', '3',
+                '--shuffle'
             ];
 
             runner.run(args);
 
             const numbers = fs.readFileSync(outputFile, 'utf8');
             expect(numbers).toEqual([
-                'М001ММ 78',
-                'Н002МН 79'
+                'Н002МН 79',
+                'О003МО 78',
+                'М001ММ 78'
             ].join('\n'));
         });
     });

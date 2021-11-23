@@ -30,6 +30,12 @@ export class GeneratorCli {
                 type: 'number',
                 description: 'A number of car numbers you want to generate'
             })
+            .option('shuffle', {
+                alias: 's',
+                type: 'boolean',
+                description: 'Defines whether it should shuffle the result list of numbers',
+                default: false
+            })
             .version(packageJson.version)
             .demandOption(['pattern', 'definitions'])
             .showHelpOnFail(true)
