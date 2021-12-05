@@ -109,9 +109,9 @@ describe('Generator', () => {
             const voiceovers = generator.generate(keySets, dictionary, 3);
 
             expect(voiceovers).toEqual([
-                { name: 'М00', options: ['м нуль нуль'] },
-                { name: 'М00', options: ['мы ноль ноль'] },
-                { name: 'М00', options: ['мэ нуль нуль'] }
+                { name: 'М00', options: ['м два ноля'] },
+                { name: 'М00', options: ['мы дубль ноль'] },
+                { name: 'М00', options: ['мэ дуплет нулей'] }
             ] as Voiceover[]);
         });
 
@@ -192,33 +192,6 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
-        it('should get more complicated combinations if the rest of the dictionary does not contains simple', () => {
-            const keySets = [
-                ['Н', '0', '2'],
-                ['М', '0', '0'],
-                ['М', '00']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'Н': ['эн', 'нэ'],
-                '2': ['два'],
-                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
-                '0': ['нуль', 'ноль'],
-                '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary, 3);
-
-            expect(voiceovers).toEqual([
-                { name: 'Н02', options: ['эн нуль два'] },
-                { name: 'Н02', options: ['нэ ноль два'] },
-                { name: 'Н02', options: ['нэ нуль два'] },
-                { name: 'М00', options: ['м два ноля'] },
-                { name: 'М00', options: ['мы дубль ноль'] },
-                { name: 'М00', options: ['мэ дуплет нулей'] }
-            ] as Voiceover[]);
-        });
-
         it('should not generate more than max unique combinations ' +
             'even if the requested number is greater', () => {
             const keySets = [
@@ -269,6 +242,88 @@ describe('Generator', () => {
                 { name: 'М01', options: ['мэ нуль один'] },
                 { name: 'Н02', options: ['н нуль два'] },
                 { name: 'Н02', options: ['н ноль два'] }
+            ] as Voiceover[]);
+        });
+
+        it('should use the most long dictionary keys at first', () => {
+            const keySets = [
+                ['М', '2', '5', '1'],
+                ['М', '25', '1'],
+                ['М', '2', '51'],
+                ['М', '251']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м'],
+                '1': ['один'],
+                '2': ['два'],
+                '5': ['пять'],
+                '25': ['двадцать пять'],
+                '51': ['пятьдесят один'],
+                '251': ['двести пятьдесят один']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'М251', options: ['м двести пятьдесят один'] },
+                { name: 'М251', options: ['м двадцать пять один'] },
+                { name: 'М251', options: ['м два пятьдесят один'] }
+            ] as Voiceover[]);
+        });
+
+        it('should use the most long dictionary keys at first for the representative set', () => {
+            const keySets = [
+                ['М', '2', '5', '1'],
+                ['М', '25', '1'],
+                ['М', '2', '51'],
+                ['М', '251']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м'],
+                '1': ['один'],
+                '2': ['два'],
+                '5': ['пять'],
+                '25': ['двадцать пять'],
+                '51': ['пятьдесят один'],
+                '251': ['двести пятьдесят один']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary);
+
+            expect(voiceovers).toEqual([
+                { name: 'М251', options: ['м двести пятьдесят один'] },
+                { name: 'М251', options: ['м двадцать пять один'] },
+                { name: 'М251', options: ['м два пятьдесят один'] },
+                { name: 'М251', options: ['м два пять один'] }
+            ] as Voiceover[]);
+        });
+
+        it('should get less complicated combinations ' +
+            'if the rest of the dictionary does not contain the most long', () => {
+            const keySets = [
+                ['Н', '00'],
+                ['М', '0', '0'],
+                ['М', '00']
+            ];
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'Н': ['эн', 'нэ'],
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
+                '0': ['нуль', 'ноль', 'зеро'],
+                '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
+            };
+
+            const voiceovers = generator.generate(keySets, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'Н00', options: ['эн два ноля'] },
+                { name: 'Н00', options: ['нэ дубль ноль'] },
+                { name: 'Н00', options: ['эн дуплет нулей'] },
+                { name: 'М00', options: ['м нуль нуль'] },
+                { name: 'М00', options: ['мы ноль ноль'] },
+                { name: 'М00', options: ['мэ зеро зеро'] }
             ] as Voiceover[]);
         });
     });

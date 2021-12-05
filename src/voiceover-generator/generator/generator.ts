@@ -8,40 +8,45 @@ import { HigherOrderFacet } from '../../common/entities/facet';
 export class Generator {
     private combinator = new Combinator();
 
-    generate(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary, countPerKey?: number): Voiceover[] {
-        if (!countPerKey) {
-            return this.generateRepresentativeSet(keySets, dictionary);
-        }
+    generate(keySets: KeySet[], dictionary: VoiceoverDictionary, countPerKey?: number): Voiceover[] {
+        let restDictionary = dictionary;
+        const keySetsGroupedByName = this.groupAllByName(keySets);
+        const orderedKeySetsByTheMostLongKey = this.orderKeySetsByTheMostLongKey(keySetsGroupedByName);
+        return Array.from(orderedKeySetsByTheMostLongKey.entries()).flatMap(([_, sets]) => {
+            if (!countPerKey) {
+                return this.generateRepresentativeSet(sets, dictionary);
+            }
 
-        return this.generateRequestedCount(keySets, dictionary, countPerKey);
+            const [voiceovers, dict] = this.generateRequestedCount(sets, dictionary, restDictionary, countPerKey);
+            restDictionary = dict;
+            return voiceovers;
+        });
     }
 
-    private generateRepresentativeSet(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): Voiceover[] {
+    private generateRepresentativeSet(keySets: KeySet[], dictionary: VoiceoverDictionary): Voiceover[] {
         const disjointVoiceovers = this.generateDisjointSet(keySets, dictionary);
         return this.joinVoiceoverOptions(disjointVoiceovers);
     }
 
     private generateRequestedCount(
-        keySets: VoiceoverKey[][],
+        keySets: KeySet[],
         dictionary: VoiceoverDictionary,
+        originalRestDictionary: VoiceoverDictionary,
         countPerKey: number
-    ): Voiceover[] {
-        let restDictionary = dictionary;
-        const keySetsGroupedByName = this.groupAllByName(keySets);
-        return Array.from(keySetsGroupedByName.entries()).flatMap(([_, sets]) => {
-            let reachableSets = this.filterByExistingKeys(sets, restDictionary);
-            if (!this.canReachRequiredCount(reachableSets, restDictionary, countPerKey)) {
-                reachableSets = sets;
-                restDictionary = dictionary;
-            }
+    ): [Voiceover[], VoiceoverDictionary] {
+        let restDictionary = Object.fromEntries(Object.entries(originalRestDictionary));
+        let reachableSets = this.filterByExistingKeys(keySets, restDictionary);
+        if (!this.canReachRequiredCount(reachableSets, restDictionary, countPerKey)) {
+            reachableSets = keySets;
+            restDictionary = dictionary;
+        }
 
-            const maxSet = this.generateDisjointSet(reachableSets, restDictionary, countPerKey);
-            const sliceCount = Math.min(maxSet.length, countPerKey);
-            const disjointVoiceovers = maxSet.slice(0, sliceCount);
-            restDictionary = this.thinOutDictionary(restDictionary, disjointVoiceovers);
+        const maxSet = this.generateDisjointSet(reachableSets, restDictionary, countPerKey);
+        const sliceCount = Math.min(maxSet.length, countPerKey);
+        const disjointVoiceovers = maxSet.slice(0, sliceCount);
+        restDictionary = this.thinOutDictionary(restDictionary, disjointVoiceovers);
 
-            return this.joinVoiceoverOptions(disjointVoiceovers);
-        });
+        return [this.joinVoiceoverOptions(disjointVoiceovers), restDictionary];
     }
 
     // noinspection JSMethodCanBeStatic
@@ -53,7 +58,7 @@ export class Generator {
     }
 
     private generateDisjointSet(
-        keySets: VoiceoverKey[][],
+        keySets: KeySet[],
         dictionary: VoiceoverDictionary,
         requestedCount?: number
     ): DisjointVoiceover[] {
@@ -66,17 +71,17 @@ export class Generator {
         });
     }
 
-    private convertToHigherOrderFacets(keySet: VoiceoverKey[], dictionary: VoiceoverDictionary): HigherOrderFacet[] {
+    private convertToHigherOrderFacets(keySet: KeySet, dictionary: VoiceoverDictionary): HigherOrderFacet[] {
         const facetGroups = this.getFacetByKeys(keySet, dictionary);
         return this.combinator.generateHigherOrderFacets(facetGroups);
     }
 
-    private getFacetByKeys(keySet: VoiceoverKey[], dictionary: VoiceoverDictionary): VoiceoverFacetSet[] {
+    private getFacetByKeys(keySet: KeySet, dictionary: VoiceoverDictionary): VoiceoverFacetSet[] {
         return keySet.map(key => [dictionary[key]]);
     }
 
-    private groupAllByName(keySets: VoiceoverKey[][]): Map<CarNumber, VoiceoverKey[][]> {
-        const keySetsGroupedByName = new Map<string, VoiceoverKey[][]>();
+    private groupAllByName(keySets: KeySet[]): KeySetsMap {
+        const keySetsGroupedByName = new Map<string, KeySet[]>();
         keySets.forEach(keySet => {
             const name = keySet.join('');
             const sets = keySetsGroupedByName.get(name) || [];
@@ -87,8 +92,23 @@ export class Generator {
         return keySetsGroupedByName;
     }
 
+    private orderKeySetsByTheMostLongKey(keySetsMap: KeySetsMap): KeySetsMap {
+        const entries = Array.from(keySetsMap.entries()).map(([carNumber, keySets]) => {
+            const orderedKeySets = [...keySets];
+            orderedKeySets.sort((ks1, ks2) => {
+                const [maxLength1, maxLength2] = [ks1, ks2].map(keySet => {
+                    return keySet.map(key => key.length)
+                        .reduce((max, current) => Math.max(max, current), 0);
+                });
+                return maxLength2 - maxLength1;
+            });
+            return [carNumber, orderedKeySets] as [CarNumber, KeySet[]];
+        });
+        return new Map(entries);
+    }
+
     private canReachRequiredCount(
-        keySets: VoiceoverKey[][],
+        keySets: KeySet[],
         dictionary: VoiceoverDictionary,
         countPerKey: number
     ): boolean {
@@ -97,7 +117,7 @@ export class Generator {
         return countPerKey <= maxCount;
     }
 
-    private filterByExistingKeys(keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): VoiceoverKey[][] {
+    private filterByExistingKeys(keySets: KeySet[], dictionary: VoiceoverDictionary): KeySet[] {
         return keySets.filter(keySet => keySet.every(key => dictionary[key]));
     }
 
@@ -113,3 +133,6 @@ export class Generator {
         return Object.fromEntries(filteredEntries);
     }
 }
+
+type KeySet = VoiceoverKey[];
+type KeySetsMap = Map<CarNumber, KeySet[]>;

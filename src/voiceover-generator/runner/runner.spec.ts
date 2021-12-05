@@ -8,7 +8,7 @@ describe('Runner', () => {
     const baseDir = __dirname;
     const defaultInputDir = `${baseDir}/spec-assets`;
     const outputDir = `${baseDir}/output`;
-    const baseCmdArgs = ['ts-node', 'src/index.ts'];
+    const toolCmdArgs = ['ts-node', 'src/index.ts'];
 
     const { output } = dependencies;
 
@@ -17,20 +17,24 @@ describe('Runner', () => {
     });
 
     describe('#run', () => {
-        // car number: A002BB 78
-        const defaultInputFile = `${defaultInputDir}/numbers.txt`;
-        const defaultDictionaryFile = `${defaultInputDir}/voiceover.dictionary.csv`;
+        const defaultDictionaryFile = `${defaultInputDir}/default/voiceover.dictionary.csv`;
         const outputFile = `${outputDir}/voiceovers.csv`;
-        const generalArgs = [
-            ...baseCmdArgs,
+        const baseArgs = [
+            ...toolCmdArgs,
             '--dictionary', defaultDictionaryFile,
-            '--input', defaultInputFile,
             '--output', outputFile,
             '--count-per-number', '3'
         ];
 
+        // car number: A002BB 78
+        const defaultInputFile = `${defaultInputDir}/default/numbers.txt`;
+        const generalCaseArgs = [
+            ...baseArgs,
+            '--input', defaultInputFile
+        ];
+
         it('should translate car numbers into voiceovers', () => {
-            runner.run(generalArgs);
+            runner.run(generalCaseArgs);
 
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
@@ -40,37 +44,26 @@ describe('Runner', () => {
             ].join('\n'));
         });
 
-        it('should get voiceovers for the most long dictionary keys at first', () => {
-            const inputDir = `${defaultInputDir}/the-most-long-dictionary-keys`;
-            const inputFile = `${inputDir}/numbers.txt`;
+        it.skip('should be able to generate voiceovers for 500 car numbers less than 1 second', () => {
+            const inputFile = `${defaultInputDir}/500-car-numbers/numbers.txt`;
             const args = [
-                ...baseCmdArgs,
-                '--dictionary', defaultDictionaryFile,
-                '--input', inputFile,
-                '--output', outputFile,
-                '--count-per-number', '3'
+                ...baseArgs,
+                '--input', inputFile
             ];
 
             runner.run(args);
+
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
-            expect(voiceovers).toEqual([
-                'Х002СХ 199;ха два нуля два эс хэ регион сто девяносто девять',
-                'Х002СХ 199;х два ноля двойка сэ Харитон регион один девяносто девять',
-                'Х002СХ 199;Харлампия дубль ноль два с Христофор регион один две девятки',
-                'М999ММ 47;эм девятьсот девяносто девять два эм регион сорок семь',
-                'М999ММ 47;мэ три девятки две эм регион четыре семь',
-                'М999ММ 47;м триплет девяток дубль эм регион сорок семь',
-                'Е003АЕ 99;е дуплет нулей три а Евгений регион дубль девять',
-                'Е003АЕ 99;Елена дуплет нолей тройка Александр Егор регион дуплет девяток',
-                'Е003АЕ 99;е ноль нуль три Анна Евгений регион девять девять'
-            ].join('\n'));
+            const [, time] = output.getLogs().match(/Time spent: (\d+) ms/)!;
+            expect(voiceovers.length).toEqual(500 * 3);
+            expect(Number(time)).toBeLessThan(1000);
         });
 
         it('should get voiceovers for the european car numbers', () => {
             const inputDir = `${defaultInputDir}/the-european-car-numbers`;
             const inputFile = `${inputDir}/numbers.txt`;
             const args = [
-                ...baseCmdArgs,
+                ...toolCmdArgs,
                 '--dictionary', defaultDictionaryFile,
                 '--input', inputFile,
                 '--output', outputFile,
@@ -96,13 +89,13 @@ describe('Runner', () => {
         });
 
         it('should print statistics if a user sets the special flag', () => {
-            const extendedArgs = [...generalArgs, '--statistics'];
+            const extendedArgs = [...generalCaseArgs, '--statistics'];
             runner.run(extendedArgs);
             expect(output.getLogs()).toContain('Statistics');
         });
 
         it('should not print statistics by default', () => {
-            runner.run(generalArgs);
+            runner.run(generalCaseArgs);
             expect(output.getLogs()).not.toContain('Statistics');
         });
     });
