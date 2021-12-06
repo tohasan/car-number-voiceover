@@ -13,10 +13,12 @@ export class DictionaryReader {
 
         const voiceoverEntries = rows.map(row => {
             const [name, optionsStr] = row.split(this.FIELD_SEPARATOR);
-            // We need trim because of Zero Width No-Break Space (BOM, ZWNBSP)
+            // We need trim because of Zero Width No-Break Space (BOM, ZWNBSP, U+200B)
             // accidentally occurred in a file
-            // We should not trim all the spaces because key might be a space
-            const normalizedName = name ? name.trim() || ' ' : name;
+            // But we should not trim visible spaces because
+            // they might be used as a part of key for mapping a special
+            // translation options
+            const normalizedName = name.replace(/[\u200B-\u200D\uFEFF]/g, '');
             return [normalizedName, (optionsStr || '').trim()];
         });
 
