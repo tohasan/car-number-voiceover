@@ -17,6 +17,19 @@ export class Combinator {
         );
     }
 
+    cartesianProductWithOverlapping(facets: Facet[]): DisjointCombination[] {
+        return facets.reduce<DisjointCombination[]>(
+            (accSets, facet, index) => {
+                return accSets.flatMap(accSet => {
+                    const length = accSet.reduce((len, val) => len + val.length, 0);
+                    const isSkipFacet = index < length;
+                    return isSkipFacet ? [[...accSet]] : facet.map(value => [...accSet, value]);
+                });
+            },
+            [[]]
+        );
+    }
+
     // TODO: It might be private (need to rethink classes)
     mixIndependently(facets: HigherOrderFacet[], offset: number): DisjointCombination[] {
         const maxLength = FacetUtils.getMaxLength(facets);

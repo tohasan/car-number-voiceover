@@ -1,18 +1,19 @@
 import { CarNumber } from '../../common/entities/car-number';
 import { VoiceoverKey } from '../entities/voiceover';
 import { Logger } from '../../common/utils/logger/logger';
+import { Combinator } from '../../common/combinator/combinator';
 
 export class FacetsGenerator {
-    private NOT_FOUND_KEY = 'undefined';
     private logger = new Logger();
+    private combinator = new Combinator();
 
     generate(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][] {
         this.warnAboutAbsentCharacters(carNumbers, voiceoverKeys);
         return carNumbers.flatMap(carNumber => {
             const normalizedCarNumber = this.filterOutCharsIfNotPresentInKeys(carNumber, voiceoverKeys);
             const keysSubset = this.filterOutKeysIfNotPresentInCarNumber(voiceoverKeys, normalizedCarNumber);
-            const sets = this.findKeySets(normalizedCarNumber, keysSubset);
-            return sets.filter(set => set.every(key => this.NOT_FOUND_KEY !== key));
+            const keyFacetsPerPos = this.generateFacetsPerPositionInCarNumber(normalizedCarNumber, keysSubset);
+            return this.combinator.cartesianProductWithOverlapping(keyFacetsPerPos);
         });
     }
 
@@ -26,31 +27,15 @@ export class FacetsGenerator {
         return voiceoverKeys.filter(key => carNumber.includes(key));
     }
 
-    private findKeySets(str: string, voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][] {
-        if (!str) {
-            return [];
-        }
+    private generateFacetsPerPositionInCarNumber(carNumber: CarNumber, keys: VoiceoverKey[]): VoiceoverKey[][] {
+        const chars = carNumber.split('');
+        const facets: VoiceoverKey[][] = chars.map(() => []);
 
-        let result: VoiceoverKey[][] = [];
-        for (let i = 1; i <= str.length; i++) {
-            const key = str.substring(0, i);
-            if (!voiceoverKeys.includes(key)) {
-                return [...result, [this.NOT_FOUND_KEY]];
-            }
-
-            const trailKeysSet = this.findKeySets(str.substring(i, str.length), voiceoverKeys);
-
-            if (trailKeysSet.length) {
-                result = [
-                    ...result,
-                    ...trailKeysSet.map(trailKeys => [key, ...trailKeys])
-                ];
-            } else {
-                result = [...result, [key]];
-            }
-        }
-
-        return result;
+        keys.forEach(key => {
+            const indexes = Array.from(carNumber.matchAll(new RegExp(key, 'g'))).map(match => match.index!);
+            indexes.forEach(index => facets[index].push(key));
+        });
+        return facets;
     }
 
     private warnAboutAbsentCharacters(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): void {
