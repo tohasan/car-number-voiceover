@@ -100,7 +100,8 @@ export class Generator {
                     return keySet.map(key => key.length)
                         .reduce((max, current) => Math.max(max, current), 0);
                 });
-                return maxLength2 - maxLength1;
+                return maxLength2 - maxLength1
+                    || ks1.length - ks2.length;
             });
             return [carNumber, orderedKeySets] as [CarNumber, KeySet[]];
         });
