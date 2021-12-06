@@ -19,11 +19,12 @@ describe('Runner', () => {
     describe('#run', () => {
         const defaultDictionaryFile = `${defaultInputDir}/default/voiceover.dictionary.csv`;
         const outputFile = `${outputDir}/voiceovers.csv`;
+        const countPerNumber = 3;
         const baseArgs = [
             ...toolCmdArgs,
             '--dictionary', defaultDictionaryFile,
             '--output', outputFile,
-            '--count-per-number', '3'
+            '--count-per-number', String(countPerNumber)
         ];
 
         // car number: A002BB 78
@@ -44,7 +45,8 @@ describe('Runner', () => {
             ].join('\n'));
         });
 
-        it.skip('should be able to generate voiceovers for 500 car numbers less than 1 second', () => {
+        it('should be able to generate voiceovers for 500 car numbers less than 1 second', () => {
+            const carNumbersCount = 500;
             const inputFile = `${defaultInputDir}/500-car-numbers/numbers.txt`;
             const args = [
                 ...baseArgs,
@@ -55,8 +57,9 @@ describe('Runner', () => {
 
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             const [, time] = output.getLogs().match(/Time spent: (\d+) ms/)!;
-            expect(voiceovers.length).toEqual(500 * 3);
-            expect(Number(time)).toBeLessThan(1000);
+            const expectedTimeLimitInMilliseconds = 1000;
+            expect(voiceovers.length).toEqual(carNumbersCount * countPerNumber);
+            expect(Number(time)).toBeLessThan(expectedTimeLimitInMilliseconds);
         });
 
         it('should get voiceovers for the european car numbers', () => {

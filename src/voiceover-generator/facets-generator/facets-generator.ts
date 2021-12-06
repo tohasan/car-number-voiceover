@@ -10,7 +10,8 @@ export class FacetsGenerator {
         this.warnAboutAbsentCharacters(carNumbers, voiceoverKeys);
         return carNumbers.flatMap(carNumber => {
             const normalizedCarNumber = this.filterOutCharsIfNotPresentInKeys(carNumber, voiceoverKeys);
-            const sets = this.findKeySets(normalizedCarNumber, voiceoverKeys);
+            const keysSubset = this.filterOutKeysIfNotPresentInCarNumber(voiceoverKeys, normalizedCarNumber);
+            const sets = this.findKeySets(normalizedCarNumber, keysSubset);
             return sets.filter(set => set.every(key => this.NOT_FOUND_KEY !== key));
         });
     }
@@ -21,6 +22,10 @@ export class FacetsGenerator {
         return normalizedChars.join('');
     }
 
+    private filterOutKeysIfNotPresentInCarNumber(voiceoverKeys: VoiceoverKey[], carNumber: CarNumber): VoiceoverKey[] {
+        return voiceoverKeys.filter(key => carNumber.includes(key));
+    }
+
     private findKeySets(str: string, voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][] {
         if (!str) {
             return [];
@@ -29,15 +34,19 @@ export class FacetsGenerator {
         let result: VoiceoverKey[][] = [];
         for (let i = 1; i <= str.length; i++) {
             const key = str.substring(0, i);
+            if (!voiceoverKeys.includes(key)) {
+                return [...result, [this.NOT_FOUND_KEY]];
+            }
+
             const trailKeysSet = this.findKeySets(str.substring(i, str.length), voiceoverKeys);
-            const resultKey = voiceoverKeys.includes(key) ? key : this.NOT_FOUND_KEY;
+
             if (trailKeysSet.length) {
                 result = [
                     ...result,
-                    ...trailKeysSet.map(trailKeys => [resultKey, ...trailKeys])
+                    ...trailKeysSet.map(trailKeys => [key, ...trailKeys])
                 ];
             } else {
-                result = [...result, [resultKey]];
+                result = [...result, [key]];
             }
         }
 
