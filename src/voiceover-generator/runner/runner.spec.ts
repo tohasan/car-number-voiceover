@@ -1,12 +1,13 @@
 import { Runner } from './runner';
 import * as fs from 'fs';
 import { dependencies } from '../../common/utils/specs/dependencies';
+import { FileReader } from '../file-reader/file-reader';
 
 describe('Runner', () => {
     let runner: Runner;
 
     const baseDir = __dirname;
-    const defaultInputDir = `${baseDir}/spec-assets`;
+    const assetsDir = `${baseDir}/spec-assets`;
     const outputDir = `${baseDir}/output`;
     const toolCmdArgs = ['ts-node', 'src/index.ts'];
 
@@ -17,7 +18,7 @@ describe('Runner', () => {
     });
 
     describe('#run', () => {
-        const defaultDictionaryFile = `${defaultInputDir}/default/voiceover.dictionary.csv`;
+        const defaultDictionaryFile = `${assetsDir}/default/voiceover.dictionary.csv`;
         const outputFile = `${outputDir}/voiceovers.csv`;
         const countPerNumber = 3;
         const baseArgs = [
@@ -28,7 +29,7 @@ describe('Runner', () => {
         ];
 
         // car number: A002BB 78
-        const defaultInputFile = `${defaultInputDir}/default/numbers.txt`;
+        const defaultInputFile = `${assetsDir}/default/numbers.txt`;
         const generalCaseArgs = [
             ...baseArgs,
             '--input', defaultInputFile
@@ -39,23 +40,29 @@ describe('Runner', () => {
 
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
-                'А002ВВ 78;а ноль ноль два вэ вэ регион семь восемь',
-                'А002ВВ 78;а нуль нуль двойка в в регион семерка восьмерка',
-                'А002ВВ 78;а ноль ноль два вэ вэ регион семерка восемь'
+                'А002ВВ 78;а два нуля два два вэ регион семьдесят восемь',
+                'А002ВВ 78;Александр два ноля двойка две вэ пробел семь восемь',
+                'А002ВВ 78;Анна дубль ноль два дубль вэ регион семерка восьмерка'
             ].join('\n'));
         });
 
-        it('should be able to generate voiceovers for 500 car numbers less than 1 second', () => {
+        it('should be able to generate voiceovers for 500 car numbers and 1k+ dictionary less than 1 second', () => {
             const carNumbersCount = 500;
-            const inputFile = `${defaultInputDir}/500-car-numbers/numbers.txt`;
+            const inputDir = `${assetsDir}/500-car-numbers`;
+            const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.1k.csv`;
             const args = [
-                ...baseArgs,
-                '--input', inputFile
+                ...toolCmdArgs,
+                '--input', inputFile,
+                '--dictionary', dictionaryFile,
+                '--output', outputFile,
+                '--count-per-number', String(countPerNumber)
             ];
 
             runner.run(args);
 
-            const voiceovers = fs.readFileSync(outputFile, 'utf8');
+            const fileReader = new FileReader();
+            const voiceovers = fileReader.read(outputFile);
             const [, time] = output.getLogs().match(/Time spent: (\d+) ms/)!;
             const expectedTimeLimitInMilliseconds = 1000;
             expect(voiceovers.length).toEqual(carNumbersCount * countPerNumber);
@@ -63,14 +70,15 @@ describe('Runner', () => {
         });
 
         it('should get voiceovers for the european car numbers', () => {
-            const inputDir = `${defaultInputDir}/the-european-car-numbers`;
+            const inputDir = `${assetsDir}/the-european-car-numbers`;
             const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.csv`;
             const args = [
                 ...toolCmdArgs,
-                '--dictionary', defaultDictionaryFile,
+                '--dictionary', dictionaryFile,
                 '--input', inputFile,
                 '--output', outputFile,
-                '--count-per-number', '3'
+                '--count-per-number', String(countPerNumber)
             ];
 
             runner.run(args);

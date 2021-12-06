@@ -6,14 +6,14 @@ skinparam linetype ortho
 
 !include runner/runner.puml
 !include generator-cli/generator-cli.puml
-!include car-numbers-reader/car-numbers-reader.puml
+!include file-reader/file-reader.puml
 !include dictionary-reader/dictionary-reader.puml
 !include facets-generator/facets-generator.puml
 !include generator/generator.puml
 !include ../common/exporter/exporter.puml
 
 Runner o-- GeneratorCli
-Runner o-- CarNumbersReader
+Runner o-- FileReader
 Runner o-- DictionaryReader
 Runner o-- FacetsGenerator
 Runner o-- Generator

@@ -11,8 +11,32 @@ describe('DictionaryReader', () => {
 
     describe('#read', () => {
 
-        it('should read voiceover dictionary', () => {
-            const filename = `${inputDir}/voiceover.dictionary.csv`;
+        it('should read voiceover dictionary with windows-like (crlf) end of line', () => {
+            const filename = `${inputDir}/voiceover.dictionary.crlf.csv`;
+
+            const voiceovers = reader.read(filename);
+
+            // noinspection NonAsciiCharacters
+            expect(voiceovers).toEqual({
+                'М': ['эм', 'мэ'],
+                '00': ['два нуля', 'два ноля', 'дубль ноль']
+            });
+        });
+
+        it('should read voiceover dictionary with unix-like (lf) end of line', () => {
+            const filename = `${inputDir}/voiceover.dictionary.lf.csv`;
+
+            const voiceovers = reader.read(filename);
+
+            // noinspection NonAsciiCharacters
+            expect(voiceovers).toEqual({
+                'М': ['эм', 'мэ'],
+                '00': ['два нуля', 'два ноля', 'дубль ноль']
+            });
+        });
+
+        it('should read voiceover dictionary with classic macos-like (cr) end of line', () => {
+            const filename = `${inputDir}/voiceover.dictionary.cr.csv`;
 
             const voiceovers = reader.read(filename);
 

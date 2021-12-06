@@ -1,6 +1,6 @@
 import { FacetsGenerator } from './facets-generator';
 import { dependencies } from '../../common/utils/specs/dependencies';
-import fs from 'fs';
+import { FileReader } from '../file-reader/file-reader';
 
 describe('FacetsGenerator', () => {
     let generator: FacetsGenerator;
@@ -115,8 +115,9 @@ describe('FacetsGenerator', () => {
         });
 
         it('should be able to generate voiceovers for 1k+ dictionary keys less than 500 ms', () => {
+            const fileReader = new FileReader();
             const carNumbers = ['В065ХВ 177'];
-            const voiceoverKeys = readRecords(`${__dirname}/spec-assets/voiceover-keys.1k.txt`);
+            const voiceoverKeys = fileReader.read(`${__dirname}/spec-assets/voiceover-keys.1k.txt`);
             const startTime = Date.now();
 
             const facets = generator.generate(carNumbers, voiceoverKeys);
@@ -139,8 +140,9 @@ describe('FacetsGenerator', () => {
         it('should be able to generate voiceovers for 500 car numbers ' +
             'and 1k+ dictionary keys ' +
             'less than 500 ms', () => {
-            const carNumbers = readRecords(`${__dirname}/spec-assets/numbers.500.txt`);
-            const voiceoverKeys = readRecords(`${__dirname}/spec-assets/voiceover-keys.1k.txt`);
+            const fileReader = new FileReader();
+            const carNumbers = fileReader.read(`${__dirname}/spec-assets/numbers.500.txt`);
+            const voiceoverKeys = fileReader.read(`${__dirname}/spec-assets/voiceover-keys.1k.txt`);
             const startTime = Date.now();
 
             generator.generate(carNumbers, voiceoverKeys);
@@ -150,9 +152,4 @@ describe('FacetsGenerator', () => {
             expect(timeSpent).toBeLessThan(expectedTimeLimitInMilliseconds);
         });
     });
-
-    function readRecords(filename: string): string[] {
-        const content = fs.readFileSync(filename, 'utf8');
-        return content.split(/\r?\n/);
-    }
 });

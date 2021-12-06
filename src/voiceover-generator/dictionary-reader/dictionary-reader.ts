@@ -1,15 +1,15 @@
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
-import fs from 'fs';
-import { EOL } from 'os';
 import { Voiceover } from '../entities/voiceover';
+import { FileReader } from '../file-reader/file-reader';
 
 export class DictionaryReader {
     private FIELD_SEPARATOR = ';';
     private OPTIONS_SEPARATOR = /\s*,\s*/;
 
+    private fileReader = new FileReader();
+
     read(filename: string): VoiceoverDictionary {
-        const content = fs.readFileSync(filename, 'utf8');
-        const rows = content.split(EOL);
+        const rows = this.fileReader.read(filename);
 
         const voiceoverEntries = rows.map(row => {
             const [name, optionsStr] = row.split(this.FIELD_SEPARATOR);

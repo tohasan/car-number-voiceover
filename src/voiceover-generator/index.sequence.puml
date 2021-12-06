@@ -8,7 +8,7 @@ autonumber
 !include ../common/actors/actors.puml!EntryPoint
 !include runner/runner.puml!PARTICIPANT
 !include generator-cli/generator-cli.puml!PARTICIPANT
-!include car-numbers-reader/car-numbers-reader.puml!PARTICIPANT
+!include file-reader/file-reader.puml!PARTICIPANT
 !include dictionary-reader/dictionary-reader.puml!PARTICIPANT
 !include facets-generator/facets-generator.puml!PARTICIPANT
 !include generator/generator.puml!PARTICIPANT
@@ -20,8 +20,8 @@ index -> Runner: run(args)
 Runner -> GeneratorCli: parse(args)
 Runner <- GeneratorCli: CliArguments\n{ dictionary, input, output, countPerNumber }
 
-Runner -> CarNumbersReader: read(input)
-Runner <- CarNumbersReader: numbers: CarNumber[]
+Runner -> FileReader: read(input)
+Runner <- FileReader: numbers: CarNumber[]
 
 Runner -> DictionaryReader: read(dictionary)
 Runner <- DictionaryReader: dict: VoiceoverDictionary

@@ -1,0 +1,11 @@
+@startuml
+
+class FileReader {
+    + read(filename: string): string[]
+}
+
+@enduml
+
+@startuml(id=PARTICIPANT)
+participant FileReader
+@enduml
