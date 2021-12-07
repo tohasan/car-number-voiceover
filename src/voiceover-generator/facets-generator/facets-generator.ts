@@ -21,7 +21,7 @@ export class FacetsGenerator {
                 const keysSubset = this.filterOutKeysIfNotPresent(numberKeysSubset, facetStr);
                 const keyFacetsPerPos = this.generateFacetsPerPosition(facetStr, keysSubset);
                 const keySets = this.combinator.cartesianProductWithOverlapping(keyFacetsPerPos);
-                return { config, keySets: this.orderKeySetsByTheMostLongKey(keySets) };
+                return { config, value: facetStr, keySets: this.orderKeySetsByTheMostLongKey(keySets) };
             });
             return [carNumber, facets] as [CarNumber, RealFacet[]];
         });

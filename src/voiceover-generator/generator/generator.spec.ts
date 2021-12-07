@@ -18,7 +18,7 @@ describe('Generator', () => {
         it('should generate requested number of voiceovers per car number', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['М01', [{ config, keySets: [['М', '0', '1']] }]]
+                ['М01', [{ config, value: 'М01', keySets: [['М', '0', '1']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -39,7 +39,7 @@ describe('Generator', () => {
         it('should not generate the same voiceovers even if the count is less than required', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+                ['Н02', [{ config, value: 'Н02', keySets: [['Н', '0', '2']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -60,7 +60,7 @@ describe('Generator', () => {
         it.skip('should iterate unique combinations even if reached the limit of independent iteration', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+                ['Н02', [{ config, value: 'Н02', keySets: [['Н', '0', '2']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -81,7 +81,7 @@ describe('Generator', () => {
         it('should not generate different voiceovers for the same letter or digit for the same combination', () => {
             const config: FacetConfig = { id: 'N', length: 5 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['00078', [{ config, keySets: [['0', '0', '0', '78']] }]]
+                ['00078', [{ config, value: '00078', keySets: [['0', '0', '0', '78']] }]]
             ]);
             const dictionary = {
                 '0': ['нуль', 'ноль', 'зеро'],
@@ -100,7 +100,7 @@ describe('Generator', () => {
         it('should use distinct value of the same key if the quick mode is enabled', () => {
             const config: FacetConfig = { id: 'N', length: 5 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['00078', [{ config, keySets: [['0', '0', '0', '78']] }]]
+                ['00078', [{ config, value: '00078', keySets: [['0', '0', '0', '78']] }]]
             ]);
             const dictionary = {
                 '0': ['нуль', 'ноль', 'зеро'],
@@ -119,7 +119,7 @@ describe('Generator', () => {
             const keySets = [['М', '00'], ['М', '0', '0']];
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['М00', [{ config, keySets }]]
+                ['М00', [{ config, value: 'М00', keySets }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -143,7 +143,7 @@ describe('Generator', () => {
             ];
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['М01', [{ config, keySets }]]
+                ['М01', [{ config, value: 'М01', keySets }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -169,8 +169,8 @@ describe('Generator', () => {
         it('should continue iterating combinations for the next key', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['М01', [{ config, keySets: [['М', '0', '1']] }]],
-                ['Н2М', [{ config, keySets: [['Н', '2', 'М']] }]]
+                ['М01', [{ config, value: 'М01', keySets: [['М', '0', '1']] }]],
+                ['Н2М', [{ config, value: 'Н2М', keySets: [['Н', '2', 'М']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -196,8 +196,8 @@ describe('Generator', () => {
         it('should not reset iterating combinations even if reached the limit of dictionary', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['М01', [{ config, keySets: [['М', '0', '1']] }]],
-                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+                ['М01', [{ config, value: 'М01', keySets: [['М', '0', '1']] }]],
+                ['Н02', [{ config, value: 'Н02', keySets: [['Н', '0', '2']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -223,9 +223,9 @@ describe('Generator', () => {
             'if the rest of the dictionary does not contain the most long', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['Н00', [{ config, keySets: [['Н', '00']] }]],
+                ['Н00', [{ config, value: 'Н00', keySets: [['Н', '00']] }]],
                 // eslint-disable-next-line eigenspace-script/object-properties-carrying
-                ['М00', [{ config, keySets: [['М', '00'], ['М', '0', '0']] }]]
+                ['М00', [{ config, value: 'М00', keySets: [['М', '00'], ['М', '0', '0']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -251,7 +251,7 @@ describe('Generator', () => {
             const keySets = [['00', '3'], ['0', '0', '3']];
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['003', [{ config, keySets }]]
+                ['003', [{ config, value: '003', keySets }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
@@ -283,11 +283,11 @@ describe('Generator', () => {
                 [
                     'А002ВВ 78',
                     [
-                        { config: configPrefix, keySets: [['А']] },
-                        { config: configNumber, keySets: keySetsNumber },
-                        { config: configSeries, keySets: keySetsSeries },
-                        { config: configEmpty, keySets: [[' ']] },
-                        { config: configRegion, keySets: keySetsRegion }
+                        { config: configPrefix, value: 'А', keySets: [['А']] },
+                        { config: configNumber, value: '002', keySets: keySetsNumber },
+                        { config: configSeries, value: 'ВВ', keySets: keySetsSeries },
+                        { config: configEmpty, value: ' ', keySets: [[' ']] },
+                        { config: configRegion, value: '78', keySets: keySetsRegion }
                     ]
                 ]
             ]);
@@ -323,10 +323,10 @@ describe('Generator', () => {
                 [
                     'A021 MH',
                     [
-                        { config: configPrefix, keySets: [] },
-                        { config: configNumber, keySets: [['0', '1']] },
-                        { config: configEmpty, keySets: [] },
-                        { config: configRegion, keySets: [['M']] }
+                        { config: configPrefix, value: 'A', keySets: [] },
+                        { config: configNumber, value: '021', keySets: [['0', '1']] },
+                        { config: configEmpty, value: ' ', keySets: [] },
+                        { config: configRegion, value: 'MH', keySets: [['M']] }
                     ]
                 ]
             ]);
@@ -342,6 +342,87 @@ describe('Generator', () => {
             expect(voiceovers).toEqual([
                 { name: 'A021 MH', options: ['ноль один эм'] },
                 { name: 'A021 MH', options: ['нуль однёрка эм'] }
+            ] as Voiceover[]);
+        });
+
+        it('should continue iterate through the key sets of a facet ' +
+            'which all the dictionary keys are already eaten for', () => {
+            const configPrefix: FacetConfig = { id: 'L', length: 1 };
+            const configNumber: FacetConfig = { id: 'N', length: 3 };
+            const configEmpty: FacetConfig = { id: 'E', length: 1 };
+            const configRegion: FacetConfig = { id: 'R', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                [
+                    'Т012 177',
+                    [
+                        { config: configPrefix, value: 'Т', keySets: [['Т']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configNumber, value: '012', keySets: [['0', '12'], ['0', '1', '2']] },
+                        { config: configEmpty, value: ' ', keySets: [[' ']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        {
+                            config: configRegion,
+                            value: '177',
+                            keySets: [['177'], ['17', '7'], ['1', '77'], ['1', '7', '7']]
+                        }
+                    ]
+                ],
+                [
+                    'Н001 47',
+                    [
+                        { config: configPrefix, value: 'Н', keySets: [['Н']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configNumber, value: '001', keySets: [['00', '1'], ['0', '0', '1']] },
+                        { config: configEmpty, value: ' ', keySets: [[' ']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configRegion, value: '47', keySets: [['47'], ['4', '7']] }
+                    ]
+                ],
+                [
+                    'В088 47',
+                    [
+                        { config: configPrefix, value: 'В', keySets: [['В']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configNumber, value: '088', keySets: [['0', '88'], ['0', '8', '8']] },
+                        { config: configEmpty, value: ' ', keySets: [[' ']] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configRegion, value: '47', keySets: [['47'], ['4', '7']] }
+                    ]
+                ]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'В': ['вэ', 'в', 'Владимир', 'Вера', 'Василий'],
+                'Н': ['эн', 'нэ', 'н', 'Николай', 'Наталья', 'Никита'],
+                'Т': ['тэ', 'т', 'Тимур', 'Татьяна', 'Тарас'],
+                '0': ['ноль', 'нуль'],
+                '00': ['два нуля', 'два ноля', 'дубль нуль', 'дубль ноль', 'дуплет нулей', 'дуплет нолей'],
+                '1': ['один', 'единица'],
+                '2': ['два', 'двойка'],
+                '4': ['четыре', 'четверка'],
+                '7': ['семь', 'семерка'],
+                '8': ['восемь', 'восьмерка'],
+                '12': ['двенадцать'],
+                '17': ['семнадцать'],
+                '47': ['сорок семь'],
+                '77': ['семьдесят семь', 'две семерки', 'дубль семь', 'дуплет семерок'],
+                '88': ['восемьдесят восемь', 'две восьмерки', 'дубль восемь', 'дуплет восьмерок'],
+                '177': ['сто семьдесят семь'],
+                ' ': ['регион']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
+
+            expect(voiceovers).toEqual([
+                { name: 'Т012 177', options: ['тэ ноль двенадцать регион сто семьдесят семь'] },
+                { name: 'Т012 177', options: ['т нуль один два регион семнадцать семь'] },
+                { name: 'Т012 177', options: ['Тимур ноль единица двойка регион единица семьдесят семь'] },
+                { name: 'Н001 47', options: ['эн два нуля один регион сорок семь'] },
+                { name: 'Н001 47', options: ['нэ два ноля единица регион четыре семь'] },
+                { name: 'Н001 47', options: ['н дубль нуль один регион четверка семерка'] },
+                { name: 'В088 47', options: ['вэ нуль восемьдесят восемь регион сорок семь'] },
+                { name: 'В088 47', options: ['в ноль две восьмерки регион четыре семь'] },
+                { name: 'В088 47', options: ['Владимир нуль дубль восемь регион четверка семерка'] }
             ] as Voiceover[]);
         });
     });

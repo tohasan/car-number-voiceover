@@ -80,6 +80,29 @@ describe('Runner', () => {
             expect(Number(time)).toBeLessThan(expectedTimeLimitInMilliseconds);
         });
 
+        it('should keep generate different combinations for hundreds of car numbers', () => {
+            const inputDir = `${assetsDir}/500-car-numbers`;
+            const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.1k.csv`;
+            const args = [
+                ...baseArgs,
+                '--input', inputFile,
+                '--dictionary', dictionaryFile,
+                '--pattern', '[P, N, N, N, S, S, E, R, R, R]'
+            ];
+
+            runner.run(args);
+
+            const fileReader = new FileReader();
+            const voiceovers = fileReader.read(outputFile);
+            const carNumber088 = voiceovers.filter(line => line.startsWith('В088РВ 47'));
+            expect(carNumber088).toEqual([
+                'В088РВ 47;вэ нуль восемьдесят восемь эр вэ регион сорок семь',
+                'В088РВ 47;в ноль две восьмерки рэ в регион четыре семь',
+                'В088РВ 47;Владимир нуль дубль восемь р Владимир регион четверка семерка'
+            ]);
+        });
+
         it('should get voiceovers for latvian car numbers', () => {
             const inputDir = `${assetsDir}/latvian-car-numbers`;
             const inputFile = `${inputDir}/numbers.txt`;
@@ -92,6 +115,7 @@ describe('Runner', () => {
             ];
 
             runner.run(args);
+
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
                 'LV NX-1133;Латвия эн экс дефис тысяча сто тридцать три',
@@ -112,6 +136,7 @@ describe('Runner', () => {
             ];
 
             runner.run(args);
+
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
                 'LT EJN:111;Литва и джей эн двоеточие сто одиннадцать',
@@ -132,6 +157,7 @@ describe('Runner', () => {
             ];
 
             runner.run(args);
+
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
                 'EST 007 QOJ;Эстония два нуля семь пробел кью оу джей',
@@ -152,6 +178,7 @@ describe('Runner', () => {
             ];
 
             runner.run(args);
+
             const voiceovers = fs.readFileSync(outputFile, 'utf8');
             expect(voiceovers).toEqual([
                 'FIN EGT-018;страна Финляндия и джи ти дефис ноль восемнадцать',

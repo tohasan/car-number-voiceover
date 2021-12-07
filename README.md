@@ -44,7 +44,7 @@ A multiline version of the command:
 ```shell
 $yarn generate:voiceover \
     --input assets/voiceover/example/numbers.txt \
-    --pattern [P,N,N,N,D,R,R,R]\ 
+    --pattern [P,N,N,N,S,S,D,R,R,R]\ 
     --dictionary assets/voiceover/example/voiceover.dictionary.csv \
     --output output/voiceovers.csv \
     --count-per-number 3 \
@@ -56,7 +56,7 @@ A single line version of the command if multiline does not work for
 you:
 
 ```shell
-$yarn generate:voiceover --input assets/voiceover/example/numbers.txt --pattern [P,N,N,N,D,R,R,R] --dictionary assets/voiceover/example/voiceover.dictionary.csv --output output/voiceovers.csv --count-per-number 3 --statistics --quirk
+$yarn generate:voiceover --input assets/voiceover/example/numbers.txt --pattern [P,N,N,N,S,S,D,R,R,R] --dictionary assets/voiceover/example/voiceover.dictionary.csv --output output/voiceovers.csv --count-per-number 3 --statistics --quirk
 ```
 
 If you do not specify the output file, by default you should find the

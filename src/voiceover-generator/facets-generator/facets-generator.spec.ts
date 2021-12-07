@@ -30,8 +30,8 @@ describe('FacetsGenerator', () => {
                 [
                     'A01',
                     [
-                        { config: configPrefix, keySets: [['A']] },
-                        { config: configNumber, keySets: [['0', '1']] }
+                        { config: configPrefix, value: 'A', keySets: [['A']] },
+                        { config: configNumber, value: '01', keySets: [['0', '1']] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -50,8 +50,8 @@ describe('FacetsGenerator', () => {
                 [
                     'A01',
                     [
-                        { config: configPrefix, keySets: [['A']] },
-                        { config: configNumber, keySets: [['0', '1']] }
+                        { config: configPrefix, value: 'A', keySets: [['A']] },
+                        { config: configNumber, value: '01', keySets: [['0', '1']] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -72,12 +72,12 @@ describe('FacetsGenerator', () => {
                 [
                     'A021 MH',
                     [
-                        { config: configPrefix, keySets: [] },
+                        { config: configPrefix, value: 'A', keySets: [] },
                         // FIXME: Probably, it should be: { config: configNumber, keySets: [['0', '1']] },
-                        { config: configNumber, keySets: [] },
-                        { config: configEmpty, keySets: [] },
+                        { config: configNumber, value: '021', keySets: [] },
+                        { config: configEmpty, value: ' ', keySets: [] },
                         // FIXME: Probably, it should be: { config: configRegion, keySets: [['M']] }
-                        { config: configRegion, keySets: [] }
+                        { config: configRegion, value: 'MH', keySets: [] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -123,9 +123,9 @@ describe('FacetsGenerator', () => {
                 [
                     'A011MH',
                     [
-                        { config: configPrefix, keySets: [['A']] },
-                        { config: configNumber, keySets: [['0', '11'], ['0', '1', '1']] },
-                        { config: configSeries, keySets: [['MH'], ['M', 'H']] }
+                        { config: configPrefix, value: 'A', keySets: [['A']] },
+                        { config: configNumber, value: '011', keySets: [['0', '11'], ['0', '1', '1']] },
+                        { config: configSeries, value: 'MH', keySets: [['MH'], ['M', 'H']] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -146,9 +146,9 @@ describe('FacetsGenerator', () => {
                 [
                     'A111MH',
                     [
-                        { config: configPrefix, keySets: [['A']] },
-                        { config: configNumber, keySets: [['11', '1'], ['1', '11'], ['1', '1', '1']] },
-                        { config: configSeries, keySets: [['M', 'H']] }
+                        { config: configPrefix, value: 'A', keySets: [['A']] },
+                        { config: configNumber, value: '111', keySets: [['11', '1'], ['1', '11'], ['1', '1', '1']] },
+                        { config: configSeries, value: 'MH', keySets: [['M', 'H']] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -165,13 +165,14 @@ describe('FacetsGenerator', () => {
 
             const facets = generator.generate(carNumbers, facetConfigs, voiceoverKeys);
 
+            const numberKeySets = [['111'], ['11', '1'], ['1', '11'], ['1', '1', '1']];
             expect(Array.from(facets.entries())).toEqual([
                 [
                     'A111MH',
                     [
-                        { config: configPrefix, keySets: [['A']] },
-                        { config: configNumber, keySets: [['111'], ['11', '1'], ['1', '11'], ['1', '1', '1']] },
-                        { config: configSeries, keySets: [['M', 'H']] }
+                        { config: configPrefix, value: 'A', keySets: [['A']] },
+                        { config: configNumber, value: '111', keySets: numberKeySets },
+                        { config: configSeries, value: 'MH', keySets: [['M', 'H']] }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
@@ -191,15 +192,16 @@ describe('FacetsGenerator', () => {
 
             const facets = generator.generate(carNumbers, facetConfigs, voiceoverKeys);
 
+            const regionKeySets = [['177'], ['17', '7'], ['1', '77'], ['1', '7', '7']];
             expect(Array.from(facets.entries())).toEqual([
                 [
                     'В065ХВ 177',
                     [
-                        { config: configPrefix, keySets: [['В']] },
-                        { config: configNumber, keySets: [['0', '65'], ['0', '6', '5']] },
-                        { config: configSeries, keySets: [['Х', 'В']] },
-                        { config: configEmpty, keySets: [[' ']] },
-                        { config: configRegion, keySets: [['177'], ['17', '7'], ['1', '77'], ['1', '7', '7']] }
+                        { config: configPrefix, value: 'В', keySets: [['В']] },
+                        { config: configNumber, value: '065', keySets: [['0', '65'], ['0', '6', '5']] },
+                        { config: configSeries, value: 'ХВ', keySets: [['Х', 'В']] },
+                        { config: configEmpty, value: ' ', keySets: [[' ']] },
+                        { config: configRegion, value: '177', keySets: regionKeySets }
                     ]
                 ]
             ] as [CarNumber, RealFacet[]][]);
