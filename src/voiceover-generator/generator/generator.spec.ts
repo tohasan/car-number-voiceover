@@ -225,6 +225,28 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
+        it('should get less complicated combinations regardless it\'s neighbour is reset', () => {
+            const keySets = [['00', '3'], ['0', '0', '3']];
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['003', [{ config, keySets }]]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                '3': ['три', 'тройка'],
+                '0': ['нуль', 'ноль'],
+                '00': ['дубль ноль', 'дуплет нулей']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
+
+            expect(voiceovers).toEqual([
+                { name: '003', options: ['дубль ноль три'] },
+                { name: '003', options: ['дуплет нулей тройка'] },
+                { name: '003', options: ['нуль нуль три'] }
+            ] as Voiceover[]);
+        });
+
         it('should get combinations that contains more long combinations than others ' +
             'if there are more than one in a car number', () => {
             const configPrefix: FacetConfig = { id: 'P', length: 1 };

@@ -1,4 +1,4 @@
-import { Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
+import { KeySet, Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
 import { RealFacet, RealFacetMap } from '../facets-generator/real-facet';
 import { GeneratingOptions } from './generating-options';
@@ -30,7 +30,7 @@ export class Generator {
                     });
 
                     if (!firstExistingKeySet) {
-                        firstExistingKeySet = keySets[0];
+                        firstExistingKeySet = this.findKeySetWithMinimalInsufficientKeys(keySets, restDictionary);
                         firstExistingKeySet.filter(key => !restDictionary[key] || !restDictionary[key].length)
                             // eslint-disable-next-line no-param-reassign
                             .forEach(key => restDictionary[key] = this.deepCopy(dictionary[key]));
@@ -58,6 +58,18 @@ export class Generator {
         }
 
         return options.map(option => ({ name, options: [option] }));
+    }
+
+    private findKeySetWithMinimalInsufficientKeys(keySets: KeySet[], dictionary: VoiceoverDictionary): KeySet {
+        const orderedKeySets = [...keySets];
+        orderedKeySets.sort((ks1, ks2) => {
+            const [count1, count2] = [ks1, ks2].map(keySet => {
+                return keySet.filter(key => !dictionary[key] || !dictionary[key].length).length;
+            });
+            return count1 - count2;
+        });
+        const [theMostUntouchedKeySet] = orderedKeySets;
+        return theMostUntouchedKeySet;
     }
 
     // noinspection JSMethodCanBeStatic
