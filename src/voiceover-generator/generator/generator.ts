@@ -1,68 +1,40 @@
-import { KeySet, Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
+import { Voiceover, VoiceoverOption } from '../entities/voiceover';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
 import { RealFacet, RealFacetMap, RealFacetValue } from '../facets-generator/real-facet';
 import { GeneratingOptions } from './generating-options';
+import { Combinator } from '../../common/combinator/combinator';
+import { Shuffler } from '../../common/shuffler/shuffler';
 
 export class Generator {
 
     generate(facetMap: RealFacetMap, dictionary: VoiceoverDictionary, options: GeneratingOptions): Voiceover[] {
-        const facetDictionary = this.generateFacetDictionary(facetMap);
-        const restDictionary = this.deepCopy(dictionary);
+        const { isQuirkMode } = options;
+        const facetDictionary = this.generateFacetDictionary(facetMap, dictionary, isQuirkMode);
         const restFacetDictionary = this.deepCopy(facetDictionary);
 
         return Array.from(facetMap.entries()).flatMap(([carNumber, facets]) => {
-            return this.generateRequestedCount(
-                carNumber,
-                facets,
-                dictionary,
-                restDictionary,
-                facetDictionary,
-                restFacetDictionary,
-                options
-            );
+            return this.generateRequestedCount(carNumber, facets, facetDictionary, restFacetDictionary, options);
         });
     }
 
     private generateRequestedCount(
         name: string,
         facets: RealFacet[],
-        dictionary: VoiceoverDictionary,
-        restDictionary: VoiceoverDictionary,
         facetDictionary: FacetDictionary,
         restFacetDictionary: FacetDictionary,
         generatingOptions: GeneratingOptions
     ): Voiceover[] {
-        const { countPerNumber, isQuirkMode } = generatingOptions;
+        const { countPerNumber } = generatingOptions;
         const options: VoiceoverOption[] = [];
         while (options.length < countPerNumber) {
-            const keysToShift = new Set<VoiceoverKey>();
-            const keySetsToShift = new Map<RealFacetValue, KeySet>();
             const disjointFacetOptions = facets.filter(({ value }) => restFacetDictionary[value])
                 .flatMap(({ value }) => {
-                    const keySets = restFacetDictionary[value];
-                    let keySet = keySets.find(set => {
-                        return set.every(key => restDictionary[key] && restDictionary[key].length);
-                    });
-
-                    if (!keySet) {
-                        keySet = keySets[0];
-                        keySet.filter(key => !restDictionary[key] || !restDictionary[key].length)
-                            // eslint-disable-next-line no-param-reassign
-                            .forEach(key => restDictionary[key] = this.deepCopy(dictionary[key]));
+                    if (!restFacetDictionary[value].length) {
+                        // eslint-disable-next-line no-param-reassign
+                        restFacetDictionary[value] = this.deepCopy(facetDictionary[value]);
                     }
-
-                    keySetsToShift.set(value, keySet);
-                    return keySet.map(key => {
-                        if (!isQuirkMode) {
-                            keysToShift.add(key);
-                            return restDictionary[key][0];
-                        }
-                        return restDictionary[key].shift();
-                    });
+                    return restFacetDictionary[value].shift();
                 });
-
-            keysToShift.forEach(key => restDictionary[key].shift());
-            this.rebalanceFacetDictionary(restFacetDictionary, facetDictionary, facets, keySetsToShift, restDictionary);
 
             const option = disjointFacetOptions.join(' ');
 
@@ -77,39 +49,39 @@ export class Generator {
         return options.map(option => ({ name, options: [option] }));
     }
 
-    private generateFacetDictionary(facetMap: RealFacetMap): FacetDictionary {
+    private generateFacetDictionary(
+        facetMap: RealFacetMap,
+        dictionary: VoiceoverDictionary,
+        isQuirkMode = false
+    ): FacetDictionary {
+        const combinator = new Combinator();
+        const shuffler = new Shuffler();
         const entries = Array.from(facetMap.values()).flat()
             .filter(facet => facet.keySets.length)
-            .map(({ value, keySets }) => [value, keySets] as [RealFacetValue, KeySet[]]);
+            .map(({ value, keySets }) => {
+                const options = keySets.flatMap(keySet => {
+                    const atomicOptions = keySet.map(key => dictionary[key]);
+                    if (isQuirkMode) {
+                        const allPossibleOptions = combinator.cartesianProduct(atomicOptions)
+                            .map(combination => combination.join(' '));
+                        return shuffler.shuffle(allPossibleOptions);
+                    }
+                    return this.mixIndependently(atomicOptions);
+                });
+                return [value, options] as [RealFacetValue, VoiceoverOption[]];
+            });
         return Object.fromEntries(entries);
     }
 
-    private rebalanceFacetDictionary(
-        restDictionary: FacetDictionary,
-        dictionary: FacetDictionary,
-        facets: RealFacet[],
-        keySetsToShift: Map<RealFacetValue, KeySet>,
-        voiceoverDictionary: VoiceoverDictionary
-    ): FacetDictionary {
-        facets.filter(({ value }) => restDictionary[value])
-            .forEach(({ value }) => {
-                const keySet = keySetsToShift.get(value)!;
-                const isEmpty = keySet.every(key => !voiceoverDictionary[key] || !voiceoverDictionary[key].length);
-                if (!isEmpty) {
-                    return;
-                }
+    private mixIndependently(facetOptions: VoiceoverOption[][]): VoiceoverOption[] {
+        const maxLength = facetOptions.reduce((max, options) => Math.max(max, options.length), 0);
 
-                const index = restDictionary[value].indexOf(keySet);
-                // eslint-disable-next-line no-param-reassign
-                restDictionary[value].splice(index, 1);
+        const result = [];
+        for (let i = 0; i < maxLength; i++) {
+            result.push(facetOptions.map(options => options[i % options.length]).flat());
+        }
 
-                if (!restDictionary[value].length) {
-                    // eslint-disable-next-line no-param-reassign
-                    restDictionary[value] = this.deepCopy(dictionary[value]);
-                }
-            });
-
-        return restDictionary;
+        return result.map(options => options.join(' '));
     }
 
     // noinspection JSMethodCanBeStatic
@@ -118,4 +90,4 @@ export class Generator {
     }
 }
 
-type FacetDictionary = Record<RealFacetValue, KeySet[]>;
+type FacetDictionary = Record<RealFacetValue, VoiceoverOption[]>;

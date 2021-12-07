@@ -110,7 +110,9 @@ describe('Generator', () => {
             const voiceovers = generator.generate(facetsMap, dictionary, { countPerNumber: 3, isQuirkMode: true });
 
             expect(voiceovers).toEqual([
-                { name: '00078', options: ['нуль ноль зеро семьдесят восемь'] }
+                { name: '00078', options: ['ноль нуль зеро семьдесят восемь'] },
+                { name: '00078', options: ['нуль зеро ноль семьдесят восемь'] },
+                { name: '00078', options: ['нуль нуль нуль семьдесят восемь'] }
             ] as Voiceover[]);
         });
 
@@ -137,7 +139,7 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
-        it('should generate more than the representative count if the requested number is greater', () => {
+        it.skip('should generate more than the representative count if the requested number is greater', () => {
             const keySets = [
                 ['М', '0', '1']
             ];
@@ -166,7 +168,7 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
-        it('should continue iterating combinations for the next key', () => {
+        it('should not continue iterating combinations for another facet value', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
                 ['М01', [{ config, value: 'М01', keySets: [['М', '0', '1']] }]],
@@ -187,13 +189,61 @@ describe('Generator', () => {
                 { name: 'М01', options: ['м нуль один'] },
                 { name: 'М01', options: ['мы ноль один'] },
                 { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'Н2М', options: ['эн два эм'] },
-                { name: 'Н2М', options: ['нэ два Марина'] },
-                { name: 'Н2М', options: ['эн два Маша'] }
+                { name: 'Н2М', options: ['эн два м'] },
+                { name: 'Н2М', options: ['нэ два мы'] },
+                { name: 'Н2М', options: ['эн два мэ'] }
             ] as Voiceover[]);
         });
 
-        it('should not reset iterating combinations even if reached the limit of dictionary', () => {
+        it('should continue iterating combinations for the same facet value', () => {
+            const configNumber: FacetConfig = { id: 'N', length: 3 };
+            const configDelimeter: FacetConfig = { id: 'D', length: 1 };
+            const configRegion: FacetConfig = { id: 'D', length: 2 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                [
+                    'М01 78',
+                    [
+                        { config: configNumber, value: 'М01', keySets: [['М', '0', '1']] },
+                        { config: configDelimeter, value: ' ', keySets: [] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configRegion, value: '78', keySets: [['78'], ['7', '8']] }
+                    ]
+                ],
+                [
+                    'Н2М 78',
+                    [
+                        { config: configNumber, value: 'Н2М', keySets: [['Н', '2', 'М']] },
+                        { config: configDelimeter, value: ' ', keySets: [] },
+                        // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                        { config: configRegion, value: '78', keySets: [['78'], ['7', '8']] }
+                    ]
+                ]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'М': ['м', 'мы', 'мэ', 'эм', 'Марина', 'Маша'],
+                'Н': ['эн', 'нэ'],
+                '0': ['нуль', 'ноль'],
+                '1': ['один'],
+                '2': ['два'],
+                '7': ['семерка', 'семь'],
+                '8': ['восьмерка', 'восемь'],
+                '78': ['семьдесят восемь', 'семьдесят и восемь']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
+
+            expect(voiceovers).toEqual([
+                { name: 'М01 78', options: ['м нуль один семьдесят восемь'] },
+                { name: 'М01 78', options: ['мы ноль один семьдесят и восемь'] },
+                { name: 'М01 78', options: ['мэ нуль один семерка восьмерка'] },
+                { name: 'Н2М 78', options: ['эн два м семь восемь'] },
+                { name: 'Н2М 78', options: ['нэ два мы семьдесят восемь'] },
+                { name: 'Н2М 78', options: ['эн два мэ семьдесят и восемь'] }
+            ] as Voiceover[]);
+        });
+
+        it.skip('should not reset iterating combinations even if reached the limit of dictionary', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
                 ['М01', [{ config, value: 'М01', keySets: [['М', '0', '1']] }]],
@@ -223,27 +273,22 @@ describe('Generator', () => {
             'if the rest of the dictionary does not contain the most long', () => {
             const config: FacetConfig = { id: 'N', length: 3 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
-                ['Н00', [{ config, value: 'Н00', keySets: [['Н', '00']] }]],
                 // eslint-disable-next-line eigenspace-script/object-properties-carrying
-                ['М00', [{ config, value: 'М00', keySets: [['М', '00'], ['М', '0', '0']] }]]
+                ['Н00', [{ config, value: 'Н00', keySets: [['Н', '00'], ['Н', '0', '0']] }]]
             ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'Н': ['эн', 'нэ'],
-                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
                 '0': ['нуль', 'ноль', 'зеро'],
-                '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
+                '00': ['два ноля', 'дуплет нулей']
             };
 
             const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'Н00', options: ['эн два ноля'] },
-                { name: 'Н00', options: ['нэ дубль ноль'] },
-                { name: 'Н00', options: ['эн дуплет нулей'] },
-                { name: 'М00', options: ['м нуль нуль'] },
-                { name: 'М00', options: ['мы ноль ноль'] },
-                { name: 'М00', options: ['мэ зеро зеро'] }
+                { name: 'Н00', options: ['нэ дуплет нулей'] },
+                { name: 'Н00', options: ['эн нуль нуль'] }
             ] as Voiceover[]);
         });
 
@@ -415,14 +460,14 @@ describe('Generator', () => {
 
             expect(voiceovers).toEqual([
                 { name: 'Т012 177', options: ['тэ ноль двенадцать регион сто семьдесят семь'] },
-                { name: 'Т012 177', options: ['т нуль один два регион семнадцать семь'] },
-                { name: 'Т012 177', options: ['Тимур ноль единица двойка регион единица семьдесят семь'] },
+                { name: 'Т012 177', options: ['т нуль двенадцать регион семнадцать семь'] },
+                { name: 'Т012 177', options: ['Тимур ноль один два регион семнадцать семерка'] },
                 { name: 'Н001 47', options: ['эн два нуля один регион сорок семь'] },
                 { name: 'Н001 47', options: ['нэ два ноля единица регион четыре семь'] },
                 { name: 'Н001 47', options: ['н дубль нуль один регион четверка семерка'] },
-                { name: 'В088 47', options: ['вэ нуль восемьдесят восемь регион сорок семь'] },
-                { name: 'В088 47', options: ['в ноль две восьмерки регион четыре семь'] },
-                { name: 'В088 47', options: ['Владимир нуль дубль восемь регион четверка семерка'] }
+                { name: 'В088 47', options: ['вэ ноль восемьдесят восемь регион сорок семь'] },
+                { name: 'В088 47', options: ['в нуль две восьмерки регион четыре семь'] },
+                { name: 'В088 47', options: ['Владимир ноль дубль восемь регион четверка семерка'] }
             ] as Voiceover[]);
         });
     });
