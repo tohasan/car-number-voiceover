@@ -1,6 +1,9 @@
 import { StatisticsReporter } from './statistics-reporter';
 import { dependencies } from '../../common/utils/specs/dependencies';
 import { Voiceover } from '../entities/voiceover';
+import { FacetConfig } from '../pattern-parser/facet-config';
+import { CarNumber } from '../../common/entities/car-number';
+import { RealFacet } from '../facets-generator/real-facet';
 
 describe('StatisticsReporter', () => {
     let statisticsReporter: StatisticsReporter;
@@ -20,10 +23,11 @@ describe('StatisticsReporter', () => {
             '1': ['один'],
             '00': ['два нуля']
         };
-        const keySets = [
-            ['М', '00', '1', 'Н'],
-            ['Н', '1', '00', 'М']
-        ];
+        const config: FacetConfig = { id: 'N', length: 5 };
+        const facetsMap = new Map<CarNumber, RealFacet[]>([
+            ['М001Н', [{ config, keySets: [['М', '00', '1', 'Н']] }]],
+            ['Н100М', [{ config, keySets: [['Н', '1', '00', 'М']] }]]
+        ]);
 
         it('should report about used keys', () => {
             const voiceovers: Voiceover[] = [
@@ -31,7 +35,7 @@ describe('StatisticsReporter', () => {
                 { name: 'Н100М', options: ['нэ один два нуля эм'] }
             ];
 
-            statisticsReporter.report(voiceovers, keySets, dictionary);
+            statisticsReporter.report(voiceovers, facetsMap, dictionary);
 
             expect(output.getLogs()).toContain([
                 'Used keys:',
@@ -46,7 +50,7 @@ describe('StatisticsReporter', () => {
                 { name: 'Н100М', options: ['нэ один два нуля Мария'] }
             ];
 
-            statisticsReporter.report(voiceovers, keySets, dictionary);
+            statisticsReporter.report(voiceovers, facetsMap, dictionary);
 
             expect(output.getLogs()).toContain('All keys are fully utilized.');
         });
@@ -57,7 +61,7 @@ describe('StatisticsReporter', () => {
                 { name: 'Н100М', options: ['нэ один два нуля эм'] }
             ];
 
-            statisticsReporter.report(voiceovers, keySets, dictionary);
+            statisticsReporter.report(voiceovers, facetsMap, dictionary);
 
             expect(output.getLogs()).toContain([
                 'Keys utilization:',

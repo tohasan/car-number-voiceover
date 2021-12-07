@@ -21,23 +21,24 @@ export class Generator {
         const options: VoiceoverOption[] = [];
         while (options.length < requestedCount) {
             const keysToShift = new Set<VoiceoverKey>();
-            const disjointFacetOptions = facets.flatMap(({ keySets }) => {
-                let firstExistingKeySet = keySets.find(keySet => {
-                    return keySet.every(key => restDictionary[key] && restDictionary[key].length);
-                });
+            const disjointFacetOptions = facets.filter(facet => facet.keySets.length)
+                .flatMap(({ keySets }) => {
+                    let firstExistingKeySet = keySets.find(keySet => {
+                        return keySet.every(key => restDictionary[key] && restDictionary[key].length);
+                    });
 
-                if (!firstExistingKeySet) {
-                    firstExistingKeySet = keySets[0];
-                    firstExistingKeySet.filter(key => !restDictionary[key] || !restDictionary[key].length)
-                        // eslint-disable-next-line no-param-reassign
-                        .forEach(key => restDictionary[key] = this.deepCopy(dictionary[key]));
-                }
+                    if (!firstExistingKeySet) {
+                        firstExistingKeySet = keySets[0];
+                        firstExistingKeySet.filter(key => !restDictionary[key] || !restDictionary[key].length)
+                            // eslint-disable-next-line no-param-reassign
+                            .forEach(key => restDictionary[key] = this.deepCopy(dictionary[key]));
+                    }
 
-                return firstExistingKeySet.map(key => {
-                    keysToShift.add(key);
-                    return restDictionary[key][0];
+                    return firstExistingKeySet.map(key => {
+                        keysToShift.add(key);
+                        return restDictionary[key][0];
+                    });
                 });
-            });
 
             keysToShift.forEach(key => restDictionary[key].shift());
 

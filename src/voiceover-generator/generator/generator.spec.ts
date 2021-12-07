@@ -241,12 +241,44 @@ describe('Generator', () => {
                 '78': ['семьдесят восемь'],
                 ' ': ['регион', 'пробел']
             };
+
             const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'А002ВВ 78', options: ['а два нуля два два вэ регион семьдесят восемь'] },
                 { name: 'А002ВВ 78', options: ['Александр два ноля двойка две вэ пробел семь восемь'] },
                 { name: 'А002ВВ 78', options: ['Анна дубль нуль два дубль вэ регион семерка восьмерка'] }
+            ] as Voiceover[]);
+        });
+
+        it('should skip empty key sets', () => {
+            const configPrefix: FacetConfig = { id: 'L', length: 1 };
+            const configNumber: FacetConfig = { id: 'N', length: 3 };
+            const configEmpty: FacetConfig = { id: 'E', length: 1 };
+            const configRegion: FacetConfig = { id: 'R', length: 2 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                [
+                    'A021 MH',
+                    [
+                        { config: configPrefix, keySets: [] },
+                        { config: configNumber, keySets: [['0', '1']] },
+                        { config: configEmpty, keySets: [] },
+                        { config: configRegion, keySets: [['M']] }
+                    ]
+                ]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                '0': ['ноль', 'нуль'],
+                '1': ['один', 'однёрка'],
+                'M': ['эм']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'A021 MH', options: ['ноль один эм'] },
+                { name: 'A021 MH', options: ['нуль однёрка эм'] }
             ] as Voiceover[]);
         });
     });

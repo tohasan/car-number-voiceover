@@ -1,17 +1,19 @@
 import { Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
 import { Logger } from '../../common/utils/logger/logger';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
+import { RealFacetMap } from '../facets-generator/real-facet';
 
 export class StatisticsReporter {
     private FULL_UTILIZATION = 1;
     private logger = new Logger();
 
-    report(voiceovers: Voiceover[], keySets: VoiceoverKey[][], dictionary: VoiceoverDictionary): void {
+    report(voiceovers: Voiceover[], facetsMap: RealFacetMap, dictionary: VoiceoverDictionary): void {
         this.logger.log('');
         this.logger.log('-----------');
         this.logger.log('Statistics:');
 
-        const uniqueKeys = this.calculateUsedKeys(keySets);
+        const allKeySets = Array.from(facetsMap.values()).flatMap(facets => facets.flatMap(({ keySets }) => keySets));
+        const uniqueKeys = this.calculateUsedKeys(allKeySets);
         this.logger.log('Used keys:');
         this.logger.log(uniqueKeys.join(', '));
 

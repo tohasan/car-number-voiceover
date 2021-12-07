@@ -23,7 +23,6 @@ describe('Runner', () => {
         const countPerNumber = 3;
         const baseArgs = [
             ...toolCmdArgs,
-            '--dictionary', defaultDictionaryFile,
             '--output', outputFile,
             '--count-per-number', String(countPerNumber)
         ];
@@ -32,7 +31,9 @@ describe('Runner', () => {
         const defaultInputFile = `${assetsDir}/default/numbers.txt`;
         const generalCaseArgs = [
             ...baseArgs,
-            '--input', defaultInputFile
+            '--input', defaultInputFile,
+            '--dictionary', defaultDictionaryFile,
+            '--pattern', '[P, N, N, N, S, S, E, R, R, R]'
         ];
 
         it('should translate car numbers into voiceovers', () => {
@@ -58,11 +59,10 @@ describe('Runner', () => {
             const inputFile = `${inputDir}/numbers.txt`;
             const dictionaryFile = `${inputDir}/voiceover.dictionary.1k.csv`;
             const args = [
-                ...toolCmdArgs,
+                ...baseArgs,
                 '--input', inputFile,
                 '--dictionary', dictionaryFile,
-                '--output', outputFile,
-                '--count-per-number', String(countPerNumber)
+                '--pattern', '[P, N, N, N, S, S, E, R, R, R]'
             ];
 
             runner.run(args);
@@ -75,16 +75,15 @@ describe('Runner', () => {
             expect(Number(time)).toBeLessThan(expectedTimeLimitInMilliseconds);
         });
 
-        it('should get voiceovers for the european car numbers', () => {
-            const inputDir = `${assetsDir}/the-european-car-numbers`;
+        it('should get voiceovers for latvian car numbers', () => {
+            const inputDir = `${assetsDir}/latvian-car-numbers`;
             const inputFile = `${inputDir}/numbers.txt`;
             const dictionaryFile = `${inputDir}/voiceover.dictionary.csv`;
             const args = [
-                ...toolCmdArgs,
+                ...baseArgs,
                 '--dictionary', dictionaryFile,
                 '--input', inputFile,
-                '--output', outputFile,
-                '--count-per-number', String(countPerNumber)
+                '--pattern', '[C, C, C, S, S, D, N, N, N, N]'
             ];
 
             runner.run(args);
@@ -92,16 +91,67 @@ describe('Runner', () => {
             expect(voiceovers).toEqual([
                 'LV NX-1133;Латвия эн экс дефис тысяча сто тридцать три',
                 'LV NX-1133;страна эл ви нэ икс дефис сто тринадцать три',
-                'LV NX-1133;л вэ пробел н ха дефис один сто тридцать три',
-                'LT EJN:111;Литва и джей латинская эн двоеточие сто одиннадцать',
-                'LT EJN:111;латинская эл ти пробел е джи английская эн двоеточие три единицы',
-                'LT EJN:111;страна Литва латинская е джей эн двоеточие триплет единиц',
-                'EST 007 QOJ;Эстония два нуля семь пробел кью оу джи',
-                'EST 007 QOJ;страна английская е эс т пробел два ноля семерка пробел ку о джей',
-                'EST 007 QOJ;и сэ ти дубль нуль семь пробел кью оу джи',
-                'FIN EGT-018;страна Финляндия английская е джи ти дефис ноль восемнадцать',
-                'FIN EGT-018;эф ай латинская эн пробел и гэ тэ дефис нуль один восемь',
-                'FIN EGT-018;страна фэ и с точкой английская эн е латинская гэ т дефис ноль единица восьмерка'
+                'LV NX-1133;л вэ пробел н ха дефис один сто тридцать три'
+            ].join('\n'));
+        });
+
+        it('should get voiceovers for lithuanian car numbers', () => {
+            const inputDir = `${assetsDir}/lithuanian-car-numbers`;
+            const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.csv`;
+            const args = [
+                ...baseArgs,
+                '--dictionary', dictionaryFile,
+                '--input', inputFile,
+                '--pattern', '[C, C, C, S, S, S, D, N, N, N]'
+            ];
+
+            runner.run(args);
+            const voiceovers = fs.readFileSync(outputFile, 'utf8');
+            expect(voiceovers).toEqual([
+                'LT EJN:111;Литва и джей эн двоеточие сто одиннадцать',
+                'LT EJN:111;латинская эл ти пробел е джи нэ двоеточие три единицы',
+                'LT EJN:111;страна Литва латинская е джей н двоеточие триплет единиц'
+            ].join('\n'));
+        });
+
+        it('should get voiceovers for estonian car numbers', () => {
+            const inputDir = `${assetsDir}/estonian-car-numbers`;
+            const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.csv`;
+            const args = [
+                ...baseArgs,
+                '--dictionary', dictionaryFile,
+                '--input', inputFile,
+                '--pattern', '[C, C, C, C, N, N, N, D, S, S, S]'
+            ];
+
+            runner.run(args);
+            const voiceovers = fs.readFileSync(outputFile, 'utf8');
+            expect(voiceovers).toEqual([
+                'EST 007 QOJ;Эстония два нуля семь пробел кью оу джей',
+                'EST 007 QOJ;страна английская е эс т пробел два ноля семерка пробел ку о джи',
+                'EST 007 QOJ;и сэ ти дубль нуль семь пробел кью оу джей'
+            ].join('\n'));
+        });
+
+        it('should get voiceovers for finnish car numbers', () => {
+            const inputDir = `${assetsDir}/finnish-car-numbers`;
+            const inputFile = `${inputDir}/numbers.txt`;
+            const dictionaryFile = `${inputDir}/voiceover.dictionary.csv`;
+            const args = [
+                ...baseArgs,
+                '--dictionary', dictionaryFile,
+                '--input', inputFile,
+                '--pattern', '[C, C, C, C, S, S, S, D, N, N, N]'
+            ];
+
+            runner.run(args);
+            const voiceovers = fs.readFileSync(outputFile, 'utf8');
+            expect(voiceovers).toEqual([
+                'FIN EGT-018;страна Финляндия и джи ти дефис ноль восемнадцать',
+                'FIN EGT-018;эф ай латинская эн пробел е гэ тэ дефис нуль один восемь',
+                'FIN EGT-018;страна фэ и с точкой английская эн латинская е латинская гэ т дефис ноль единица восьмерка'
             ].join('\n'));
         });
 
