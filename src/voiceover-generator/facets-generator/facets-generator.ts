@@ -1,44 +1,68 @@
 import { CarNumber } from '../../common/entities/car-number';
-import { VoiceoverKey } from '../entities/voiceover';
+import { KeySet } from '../entities/voiceover';
 import { Logger } from '../../common/utils/logger/logger';
 import { Combinator } from '../../common/combinator/combinator';
+import { FacetConfig } from '../pattern-parser/facet-config';
+import { RealFacet, RealFacetMap } from './real-facet';
 
 export class FacetsGenerator {
     private logger = new Logger();
     private combinator = new Combinator();
 
-    generate(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): VoiceoverKey[][] {
+    generate(carNumbers: CarNumber[], facetConfigs: FacetConfig[], voiceoverKeys: KeySet): RealFacetMap {
         this.warnAboutAbsentCharacters(carNumbers, voiceoverKeys);
-        return carNumbers.flatMap(carNumber => {
-            const normalizedCarNumber = this.filterOutCharsIfNotPresentInKeys(carNumber, voiceoverKeys);
-            const keysSubset = this.filterOutKeysIfNotPresentInCarNumber(voiceoverKeys, normalizedCarNumber);
-            const keyFacetsPerPos = this.generateFacetsPerPositionInCarNumber(normalizedCarNumber, keysSubset);
-            return this.combinator.cartesianProductWithOverlapping(keyFacetsPerPos);
+
+        const entries = carNumbers.map(carNumber => {
+            const numberKeysSubset = this.filterOutKeysIfNotPresent(voiceoverKeys, carNumber);
+            let restNumber = carNumber;
+            const facets: RealFacet[] = facetConfigs.map(config => {
+                const facetStr = restNumber.substr(0, config.length);
+                restNumber = restNumber.substr(config.length);
+                const keysSubset = this.filterOutKeysIfNotPresent(numberKeysSubset, facetStr);
+                const keyFacetsPerPos = this.generateFacetsPerPosition(facetStr, keysSubset);
+                const keySets = this.combinator.cartesianProductWithOverlapping(keyFacetsPerPos);
+                return { config, keySets: this.orderKeySetsByTheMostLongKey(keySets) };
+            });
+            return [carNumber, facets] as [CarNumber, RealFacet[]];
         });
+
+        return new Map(entries);
     }
 
-    private filterOutCharsIfNotPresentInKeys(carNumber: CarNumber, voiceoverKeys: VoiceoverKey[]): CarNumber {
-        const chars = carNumber.split('');
-        const normalizedChars = chars.filter(char => voiceoverKeys.some(key => key.includes(char)));
-        return normalizedChars.join('');
+    private filterOutKeysIfNotPresent(voiceoverKeys: KeySet, facetStr: string): KeySet {
+        return voiceoverKeys.filter(key => facetStr.includes(key));
     }
 
-    private filterOutKeysIfNotPresentInCarNumber(voiceoverKeys: VoiceoverKey[], carNumber: CarNumber): VoiceoverKey[] {
-        return voiceoverKeys.filter(key => carNumber.includes(key));
-    }
-
-    private generateFacetsPerPositionInCarNumber(carNumber: CarNumber, keys: VoiceoverKey[]): VoiceoverKey[][] {
-        const chars = carNumber.split('');
-        const facets: VoiceoverKey[][] = chars.map(() => []);
+    private generateFacetsPerPosition(facetStr: string, keys: KeySet): KeySet[] {
+        const chars = facetStr.split('');
+        const facets: KeySet[] = chars.map(() => []);
 
         keys.forEach(key => {
-            const indexes = Array.from(carNumber.matchAll(new RegExp(key, 'g'))).map(match => match.index!);
+            const indexes = Array.from(facetStr.matchAll(new RegExp(`(?=(${key}))`, 'g'))).map(match => match.index!);
             indexes.forEach(index => facets[index].push(key));
         });
         return facets;
     }
 
-    private warnAboutAbsentCharacters(carNumbers: CarNumber[], voiceoverKeys: VoiceoverKey[]): void {
+    private orderKeySetsByTheMostLongKey(keySets: KeySet[]): KeySet[] {
+        const orderedKeySets = [...keySets];
+        orderedKeySets.sort((ks1, ks2) => {
+            const lengths = [ks1, ks2].map(keySet => {
+                return keySet.map(key => key.length)
+                    .reduce((max, current) => Math.max(max, current), 0);
+            });
+            const [maxLength1, maxLength2] = lengths;
+            const [maxKeyIndex1, maxKeyIndex2] = [ks1, ks2].map((keySet, index) => {
+                return keySet.findIndex(key => key.length === lengths[index])!;
+            });
+            return maxLength2 - maxLength1
+                || ks1.length - ks2.length
+                || maxKeyIndex1 - maxKeyIndex2;
+        });
+        return orderedKeySets;
+    }
+
+    private warnAboutAbsentCharacters(carNumbers: CarNumber[], voiceoverKeys: KeySet): void {
         const notFoundChars = carNumbers.flatMap(carNumber => {
             const chars = carNumber.split('');
             return chars.filter(char => voiceoverKeys.every(key => !key.includes(char)));

@@ -1,4 +1,4 @@
-import { CliArguments } from '../entities/cli-arguments';
+import { CliArguments } from './cli-arguments';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as packageJson from '../../../package.json';
@@ -13,6 +13,11 @@ export class GeneratorCli {
                 alias: 'i',
                 type: 'string',
                 description: 'An input file with car numbers'
+            })
+            .option('pattern', {
+                alias: 'p',
+                type: 'string',
+                description: 'A pattern of facets'
             })
             .option('dictionary', {
                 alias: 'd',
@@ -37,7 +42,7 @@ export class GeneratorCli {
                 default: false
             })
             .version(packageJson.version)
-            .demandOption(['input', 'dictionary'])
+            .demandOption(['input', 'pattern', 'dictionary'])
             .showHelpOnFail(true)
             .parse() as CliArguments;
     }

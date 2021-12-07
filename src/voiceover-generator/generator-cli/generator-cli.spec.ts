@@ -24,6 +24,11 @@ describe('GeneratorCli', () => {
             expect(options.input).toEqual(inputFile);
         });
 
+        it('should parse the pattern parameter', () => {
+            const options = cli.parse(requiredArgs);
+            expect(options.pattern).toEqual('[L1, D, D, D, L2, L2, S, R, R, R]');
+        });
+
         it('should parse the dictionary filename', () => {
             const options = cli.parse(requiredArgs);
             expect(options.dictionary).toEqual(dictionaryFile);

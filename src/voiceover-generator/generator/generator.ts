@@ -1,8 +1,7 @@
-import { DisjointVoiceover, Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
+import { DisjointVoiceover, KeySet, KeySetsMap, Voiceover, VoiceoverOption } from '../entities/voiceover';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
 import { VoiceoverFacetSet } from '../entities/voiceover-facet';
 import { Combinator } from '../../common/combinator/combinator';
-import { CarNumber } from '../../common/entities/car-number';
 import { HigherOrderFacet } from '../../common/entities/facet';
 
 export class Generator {
@@ -11,8 +10,7 @@ export class Generator {
     generate(keySets: KeySet[], dictionary: VoiceoverDictionary, countPerKey?: number): Voiceover[] {
         let restDictionary = dictionary;
         const keySetsGroupedByName = this.groupAllByName(keySets);
-        const orderedKeySetsByTheMostLongKey = this.orderKeySetsByTheMostLongKey(keySetsGroupedByName);
-        return Array.from(orderedKeySetsByTheMostLongKey.entries()).flatMap(([_, sets]) => {
+        return Array.from(keySetsGroupedByName.entries()).flatMap(([_, sets]) => {
             if (!countPerKey) {
                 return this.generateRepresentativeSet(sets, dictionary);
             }
@@ -92,22 +90,6 @@ export class Generator {
         return keySetsGroupedByName;
     }
 
-    private orderKeySetsByTheMostLongKey(keySetsMap: KeySetsMap): KeySetsMap {
-        const entries = Array.from(keySetsMap.entries()).map(([carNumber, keySets]) => {
-            const orderedKeySets = [...keySets];
-            orderedKeySets.sort((ks1, ks2) => {
-                const [maxLength1, maxLength2] = [ks1, ks2].map(keySet => {
-                    return keySet.map(key => key.length)
-                        .reduce((max, current) => Math.max(max, current), 0);
-                });
-                return maxLength2 - maxLength1
-                    || ks1.length - ks2.length;
-            });
-            return [carNumber, orderedKeySets] as [CarNumber, KeySet[]];
-        });
-        return new Map(entries);
-    }
-
     private canReachRequiredCount(
         keySets: KeySet[],
         dictionary: VoiceoverDictionary,
@@ -134,6 +116,3 @@ export class Generator {
         return Object.fromEntries(filteredEntries);
     }
 }
-
-type KeySet = VoiceoverKey[];
-type KeySetsMap = Map<CarNumber, KeySet[]>;

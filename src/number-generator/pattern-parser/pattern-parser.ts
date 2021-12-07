@@ -21,17 +21,17 @@ export class PatternParser {
         });
     }
 
+    private parseFacet(facetStr: string): FacetValue[] {
+        return facetStr.replace(this.FACET_PATTERN, '')
+            .split(this.FACET_SEPARATOR_PATTERN);
+    }
+
     private parseDefinition(definitionString: string): Definition {
         const [name, facetStr] = definitionString.split('=');
         const facetRanges = this.parseFacet(facetStr);
         const facet = facetRanges.map(facetRange => this.parseFacetRange(facetRange))
             .flat();
         return { name, facet };
-    }
-
-    private parseFacet(facetStr: string): FacetValue[] {
-        return facetStr.replace(this.FACET_PATTERN, '')
-            .split(this.FACET_SEPARATOR_PATTERN);
     }
 
     private parseFacetRange(facetRangeStr: string): FacetValue[] {
