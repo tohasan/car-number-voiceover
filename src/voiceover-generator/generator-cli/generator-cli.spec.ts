@@ -11,12 +11,16 @@ describe('GeneratorCli', () => {
 
     describe('#parse', () => {
         const inputFile = './input/numbers.txt';
+        const pattern = '[L1, D, D, D, L2, L2, S, R, R, R]';
+        const countPerNumber = 3;
         const dictionaryFile = './input/voiceover.dictionary.csv';
         const outputFile = './output/voiceovers.txt';
         const requiredArgs = [
             ...baseCmdArgs,
             '--dictionary', dictionaryFile,
-            '--input', inputFile
+            '--input', inputFile,
+            '--pattern', pattern,
+            '--count-per-number', String(countPerNumber)
         ];
 
         it('should parse the input filename', () => {
@@ -26,7 +30,7 @@ describe('GeneratorCli', () => {
 
         it('should parse the pattern parameter', () => {
             const options = cli.parse(requiredArgs);
-            expect(options.pattern).toEqual('[L1, D, D, D, L2, L2, S, R, R, R]');
+            expect(options.pattern).toEqual(pattern);
         });
 
         it('should parse the dictionary filename', () => {
@@ -50,19 +54,8 @@ describe('GeneratorCli', () => {
             expect(options.output).toEqual('./output/voiceovers.csv');
         });
 
-        it('should not set any default value for number of voiceovers per car number', () => {
-            const args = cli.parse(requiredArgs);
-            expect(args.countPerNumber).toBeUndefined();
-        });
-
         it('should parse a provided number of voiceovers per car number', () => {
-            const cmdArgs = [
-                ...requiredArgs,
-                '--count-per-number', '3'
-            ];
-
-            const args = cli.parse(cmdArgs);
-
+            const args = cli.parse(requiredArgs);
             expect(args.countPerNumber).toEqual(3);
         });
 

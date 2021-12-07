@@ -1,118 +1,61 @@
-import { DisjointVoiceover, KeySet, KeySetsMap, Voiceover, VoiceoverOption } from '../entities/voiceover';
+import { Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
-import { VoiceoverFacetSet } from '../entities/voiceover-facet';
-import { Combinator } from '../../common/combinator/combinator';
-import { HigherOrderFacet } from '../../common/entities/facet';
+import { RealFacet, RealFacetMap } from '../facets-generator/real-facet';
 
 export class Generator {
-    private combinator = new Combinator();
 
-    generate(keySets: KeySet[], dictionary: VoiceoverDictionary, countPerKey?: number): Voiceover[] {
-        let restDictionary = dictionary;
-        const keySetsGroupedByName = this.groupAllByName(keySets);
-        return Array.from(keySetsGroupedByName.entries()).flatMap(([_, sets]) => {
-            if (!countPerKey) {
-                return this.generateRepresentativeSet(sets, dictionary);
-            }
-
-            const [voiceovers, dict] = this.generateRequestedCount(sets, dictionary, restDictionary, countPerKey);
-            restDictionary = dict;
-            return voiceovers;
+    generate(facetMap: RealFacetMap, dictionary: VoiceoverDictionary, countPerNumber: number): Voiceover[] {
+        const restDictionary = this.deepCopy(dictionary);
+        return Array.from(facetMap.entries()).flatMap(([carNumber, facets]) => {
+            return this.generateRequestedCount(carNumber, facets, dictionary, restDictionary, countPerNumber);
         });
-    }
-
-    private generateRepresentativeSet(keySets: KeySet[], dictionary: VoiceoverDictionary): Voiceover[] {
-        const disjointVoiceovers = this.generateDisjointSet(keySets, dictionary);
-        return this.joinVoiceoverOptions(disjointVoiceovers);
     }
 
     private generateRequestedCount(
-        keySets: KeySet[],
+        name: string,
+        facets: RealFacet[],
         dictionary: VoiceoverDictionary,
-        originalRestDictionary: VoiceoverDictionary,
-        countPerKey: number
-    ): [Voiceover[], VoiceoverDictionary] {
-        let restDictionary = Object.fromEntries(Object.entries(originalRestDictionary));
-        let reachableSets = this.filterByExistingKeys(keySets, restDictionary);
-        if (!this.canReachRequiredCount(reachableSets, restDictionary, countPerKey)) {
-            reachableSets = keySets;
-            restDictionary = dictionary;
+        restDictionary: VoiceoverDictionary,
+        requestedCount: number
+    ): Voiceover[] {
+        const options: VoiceoverOption[] = [];
+        while (options.length < requestedCount) {
+            const keysToShift = new Set<VoiceoverKey>();
+            const disjointFacetOptions = facets.flatMap(({ keySets }) => {
+                let firstExistingKeySet = keySets.find(keySet => {
+                    return keySet.every(key => restDictionary[key] && restDictionary[key].length);
+                });
+
+                if (!firstExistingKeySet) {
+                    firstExistingKeySet = keySets[0];
+                    firstExistingKeySet.filter(key => !restDictionary[key] || !restDictionary[key].length)
+                        // eslint-disable-next-line no-param-reassign
+                        .forEach(key => restDictionary[key] = this.deepCopy(dictionary[key]));
+                }
+
+                return firstExistingKeySet.map(key => {
+                    keysToShift.add(key);
+                    return restDictionary[key][0];
+                });
+            });
+
+            keysToShift.forEach(key => restDictionary[key].shift());
+
+            const option = disjointFacetOptions.join(' ');
+
+            const reachedTheLimitOfCombinations = options.includes(option);
+            if (reachedTheLimitOfCombinations) {
+                break;
+            }
+
+            options.push(option);
         }
 
-        const maxSet = this.generateDisjointSet(reachableSets, restDictionary, countPerKey);
-        const sliceCount = Math.min(maxSet.length, countPerKey);
-        const disjointVoiceovers = maxSet.slice(0, sliceCount);
-        restDictionary = this.thinOutDictionary(restDictionary, disjointVoiceovers);
-
-        return [this.joinVoiceoverOptions(disjointVoiceovers), restDictionary];
+        return options.map(option => ({ name, options: [option] }));
     }
 
     // noinspection JSMethodCanBeStatic
-    private joinVoiceoverOptions(disjointVoiceovers: DisjointVoiceover[]): Voiceover[] {
-        return disjointVoiceovers.map(({ name, options }) => ({
-            name,
-            options: options.map(option => option.join(' '))
-        }));
-    }
-
-    private generateDisjointSet(
-        keySets: KeySet[],
-        dictionary: VoiceoverDictionary,
-        requestedCount?: number
-    ): DisjointVoiceover[] {
-        return keySets.flatMap(keySet => {
-            const name = keySet.join('');
-            const higherOrderFacets = this.convertToHigherOrderFacets(keySet, dictionary);
-
-            return this.combinator.generateRequestedCount(higherOrderFacets, { requestedCount })
-                .map(set => ({ name, options: [set] }));
-        });
-    }
-
-    private convertToHigherOrderFacets(keySet: KeySet, dictionary: VoiceoverDictionary): HigherOrderFacet[] {
-        const facetGroups = this.getFacetByKeys(keySet, dictionary);
-        return this.combinator.generateHigherOrderFacets(facetGroups);
-    }
-
-    private getFacetByKeys(keySet: KeySet, dictionary: VoiceoverDictionary): VoiceoverFacetSet[] {
-        return keySet.map(key => [dictionary[key]]);
-    }
-
-    private groupAllByName(keySets: KeySet[]): KeySetsMap {
-        const keySetsGroupedByName = new Map<string, KeySet[]>();
-        keySets.forEach(keySet => {
-            const name = keySet.join('');
-            const sets = keySetsGroupedByName.get(name) || [];
-            sets.push(keySet);
-            keySetsGroupedByName.set(name, sets);
-        });
-
-        return keySetsGroupedByName;
-    }
-
-    private canReachRequiredCount(
-        keySets: KeySet[],
-        dictionary: VoiceoverDictionary,
-        countPerKey: number
-    ): boolean {
-        const maxCount = keySets.map(keySet => this.convertToHigherOrderFacets(keySet, dictionary))
-            .reduce((count, facets) => count + this.combinator.calculateCombinationsLimit(facets), 0);
-        return countPerKey <= maxCount;
-    }
-
-    private filterByExistingKeys(keySets: KeySet[], dictionary: VoiceoverDictionary): KeySet[] {
-        return keySets.filter(keySet => keySet.every(key => dictionary[key]));
-    }
-
-    private thinOutDictionary(
-        dictionary: VoiceoverDictionary,
-        disjointVoiceovers: DisjointVoiceover[]
-    ): VoiceoverDictionary {
-        const voiceoverValues = disjointVoiceovers.flatMap(({ options }) => options.flat());
-        const valueSet = new Set<VoiceoverOption>(voiceoverValues);
-        const filteredEntries = Object.entries(dictionary)
-            .map(([key, values]) => [key, values.filter(value => !valueSet.has(value))])
-            .filter(([_, values]) => values.length);
-        return Object.fromEntries(filteredEntries);
+    private deepCopy<T>(obj: T): T {
+        return JSON.parse(JSON.stringify(obj));
     }
 }

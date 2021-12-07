@@ -1,5 +1,8 @@
 import { Generator } from './generator';
 import { Voiceover } from '../entities/voiceover';
+import { CarNumber } from '../../common/entities/car-number';
+import { RealFacet } from '../facets-generator/real-facet';
+import { FacetConfig } from '../pattern-parser/facet-config';
 
 describe('Generator', () => {
     let generator: Generator;
@@ -10,73 +13,11 @@ describe('Generator', () => {
 
     describe('#generate', () => {
 
-        it('should generate representative set', () => {
-            const keySets = [
-                ['0', '7', '8']
-            ];
-            const dictionary = {
-                '0': ['нуль', 'ноль'],
-                '7': ['семь', 'семёрка'],
-                '8': ['восемь', 'восьмёрка']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary);
-
-            expect(voiceovers).toEqual([
-                { name: '078', options: ['нуль семь восемь'] },
-                { name: '078', options: ['ноль семёрка восьмёрка'] }
-            ] as Voiceover[]);
-        });
-
-        it('should not generate different voiceovers for the same letter or digit for the same combination', () => {
-            const keySets = [
-                ['0', '0', '0', '78']
-            ];
-            const dictionary = {
-                '0': ['нуль', 'ноль'],
-                '78': ['семьдесят восемь']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary);
-
-            expect(voiceovers).toEqual([
-                { name: '00078', options: ['нуль нуль нуль семьдесят восемь'] },
-                { name: '00078', options: ['ноль ноль ноль семьдесят восемь'] }
-            ] as Voiceover[]);
-        });
-
-        it('should generate representative sets of voiceovers per different keys', () => {
-            const keySets = [
-                ['М', '0', '1'],
-                ['Н', '0', '2']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
-                'Н': ['н'],
-                '0': ['нуль', 'ноль'],
-                '1': ['один'],
-                '2': ['два']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary);
-
-            expect(voiceovers).toEqual([
-                { name: 'М01', options: ['м нуль один'] },
-                { name: 'М01', options: ['мы ноль один'] },
-                { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'М01', options: ['эм ноль один'] },
-                { name: 'М01', options: ['Марина нуль один'] },
-                { name: 'Н02', options: ['н нуль два'] },
-                { name: 'Н02', options: ['н ноль два'] }
-            ] as Voiceover[]);
-        });
-
-        it('should generate requested number of voiceovers for a key ' +
-            'even if the representative count is greater', () => {
-            const keySets = [
-                ['М', '0', '1']
-            ];
+        it('should generate requested number of voiceovers per car number', () => {
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['М01', [{ config, keySets: [['М', '0', '1']] }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
@@ -84,7 +25,7 @@ describe('Generator', () => {
                 '1': ['один']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -93,12 +34,52 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
+        it('should not generate the same voiceovers even if the count is less than required', () => {
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'Н': ['н'],
+                '0': ['нуль', 'ноль'],
+                '2': ['два']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: 'Н02', options: ['н нуль два'] },
+                { name: 'Н02', options: ['н ноль два'] }
+            ] as Voiceover[]);
+        });
+
+        it('should not generate different voiceovers for the same letter or digit for the same combination', () => {
+            const config: FacetConfig = { id: 'N', length: 5 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['00078', [{ config, keySets: [['0', '0', '0', '78']] }]]
+            ]);
+            const dictionary = {
+                '0': ['нуль', 'ноль', 'зеро'],
+                '78': ['семьдесят восемь']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+
+            expect(voiceovers).toEqual([
+                { name: '00078', options: ['нуль нуль нуль семьдесят восемь'] },
+                { name: '00078', options: ['ноль ноль ноль семьдесят восемь'] },
+                { name: '00078', options: ['зеро зеро зеро семьдесят восемь'] }
+            ] as Voiceover[]);
+        });
+
         it('should generate requested number of voiceovers for a key ' +
             'even if there are multiple key sets for a key', () => {
-            const keySets = [
-                ['М', '0', '0'],
-                ['М', '00']
-            ];
+            const keySets = [['М', '00'], ['М', '0', '0']];
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['М00', [{ config, keySets }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
@@ -106,7 +87,7 @@ describe('Generator', () => {
                 '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'М00', options: ['м два ноля'] },
@@ -119,6 +100,10 @@ describe('Generator', () => {
             const keySets = [
                 ['М', '0', '1']
             ];
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['М01', [{ config, keySets }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
@@ -126,7 +111,7 @@ describe('Generator', () => {
                 '1': ['один']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 8);
+            const voiceovers = generator.generate(facetsMap, dictionary, 8);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -141,10 +126,11 @@ describe('Generator', () => {
         });
 
         it('should continue iterating combinations for the next key', () => {
-            const keySets = [
-                ['М', '0', '1'],
-                ['Н', '2', 'М']
-            ];
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['М01', [{ config, keySets: [['М', '0', '1']] }]],
+                ['Н2М', [{ config, keySets: [['Н', '2', 'М']] }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'М': ['м', 'мы', 'мэ', 'эм', 'Марина', 'Маша'],
@@ -154,7 +140,7 @@ describe('Generator', () => {
                 '2': ['два']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -166,147 +152,40 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
-        it('should reset iterating combinations if reached the limit of dictionary', () => {
-            const keySets = [
-                ['М', '0', '1'],
-                ['Н', '0', '2']
-            ];
+        it('should not reset iterating combinations even if reached the limit of dictionary', () => {
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['М01', [{ config, keySets: [['М', '0', '1']] }]],
+                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
-                'Н': ['эн', 'нэ'],
                 '0': ['нуль', 'ноль'],
                 '1': ['один'],
-                '2': ['два']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary, 3);
-
-            expect(voiceovers).toEqual([
-                { name: 'М01', options: ['м нуль один'] },
-                { name: 'М01', options: ['мы ноль один'] },
-                { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'Н02', options: ['эн нуль два'] },
-                { name: 'Н02', options: ['нэ ноль два'] },
-                { name: 'Н02', options: ['нэ нуль два'] }
-            ] as Voiceover[]);
-        });
-
-        it('should not generate more than max unique combinations ' +
-            'even if the requested number is greater', () => {
-            const keySets = [
-                ['М', '0', '1']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
-                '0': ['нуль', 'ноль'],
-                '1': ['один']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary, 20);
-
-            expect(voiceovers).toEqual([
-                { name: 'М01', options: ['м нуль один'] },
-                { name: 'М01', options: ['мы ноль один'] },
-                { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'М01', options: ['эм ноль один'] },
-                { name: 'М01', options: ['Марина нуль один'] },
-                { name: 'М01', options: ['м ноль один'] },
-                { name: 'М01', options: ['мы нуль один'] },
-                { name: 'М01', options: ['мэ ноль один'] },
-                { name: 'М01', options: ['эм нуль один'] },
-                { name: 'М01', options: ['Марина ноль один'] }
-            ] as Voiceover[]);
-        });
-
-        it('should not generate more than maximum when processing multiple keys', () => {
-            const keySets = [
-                ['М', '0', '1'],
-                ['Н', '0', '2']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'М': ['м', 'мы', 'мэ', 'эм', 'Марина'],
                 'Н': ['н'],
-                '0': ['нуль', 'ноль'],
-                '1': ['один'],
                 '2': ['два']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
                 { name: 'М01', options: ['мы ноль один'] },
                 { name: 'М01', options: ['мэ нуль один'] },
-                { name: 'Н02', options: ['н нуль два'] },
-                { name: 'Н02', options: ['н ноль два'] }
-            ] as Voiceover[]);
-        });
-
-        it('should use the most long dictionary keys at first', () => {
-            const keySets = [
-                ['М', '2', '5', '1'],
-                ['М', '25', '1'],
-                ['М', '2', '51'],
-                ['М', '251']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'М': ['м'],
-                '1': ['один'],
-                '2': ['два'],
-                '5': ['пять'],
-                '25': ['двадцать пять'],
-                '51': ['пятьдесят один'],
-                '251': ['двести пятьдесят один']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary, 3);
-
-            expect(voiceovers).toEqual([
-                { name: 'М251', options: ['м двести пятьдесят один'] },
-                { name: 'М251', options: ['м двадцать пять один'] },
-                { name: 'М251', options: ['м два пятьдесят один'] }
-            ] as Voiceover[]);
-        });
-
-        it('should use the most long dictionary keys at first for the representative set', () => {
-            const keySets = [
-                ['М', '2', '5', '1'],
-                ['М', '25', '1'],
-                ['М', '2', '51'],
-                ['М', '251']
-            ];
-            // noinspection NonAsciiCharacters
-            const dictionary = {
-                'М': ['м'],
-                '1': ['один'],
-                '2': ['два'],
-                '5': ['пять'],
-                '25': ['двадцать пять'],
-                '51': ['пятьдесят один'],
-                '251': ['двести пятьдесят один']
-            };
-
-            const voiceovers = generator.generate(keySets, dictionary);
-
-            expect(voiceovers).toEqual([
-                { name: 'М251', options: ['м двести пятьдесят один'] },
-                { name: 'М251', options: ['м двадцать пять один'] },
-                { name: 'М251', options: ['м два пятьдесят один'] },
-                { name: 'М251', options: ['м два пять один'] }
+                { name: 'Н02', options: ['н ноль два'] },
+                { name: 'Н02', options: ['н нуль два'] }
             ] as Voiceover[]);
         });
 
         it('should get less complicated combinations ' +
             'if the rest of the dictionary does not contain the most long', () => {
-            const keySets = [
-                ['Н', '00'],
-                ['М', '0', '0'],
-                ['М', '00']
-            ];
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['Н00', [{ config, keySets: [['Н', '00']] }]],
+                // eslint-disable-next-line eigenspace-script/object-properties-carrying
+                ['М00', [{ config, keySets: [['М', '00'], ['М', '0', '0']] }]]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'Н': ['эн', 'нэ'],
@@ -315,7 +194,7 @@ describe('Generator', () => {
                 '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
             };
 
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'Н00', options: ['эн два ноля'] },
@@ -329,16 +208,26 @@ describe('Generator', () => {
 
         it('should get combinations that contains more long combinations than others ' +
             'if there are more than one in a car number', () => {
-            const keySets = [
-                ['А', '0', '0', '2', 'В', 'В', ' ', '7', '8'],
-                ['А', '0', '0', '2', 'В', 'В', ' ', '78'],
-                ['А', '0', '0', '2', 'ВВ', ' ', '7', '8'],
-                ['А', '0', '0', '2', 'ВВ', ' ', '78'],
-                ['А', '00', '2', 'В', 'В', ' ', '7', '8'],
-                ['А', '00', '2', 'В', 'В', ' ', '78'],
-                ['А', '00', '2', 'ВВ', ' ', '7', '8'],
-                ['А', '00', '2', 'ВВ', ' ', '78']
-            ];
+            const configPrefix: FacetConfig = { id: 'P', length: 1 };
+            const configNumber: FacetConfig = { id: 'N', length: 3 };
+            const keySetsNumber = [['00', '2'], ['0', '0', '2']];
+            const configSeries: FacetConfig = { id: 'S', length: 2 };
+            const keySetsSeries = [['ВВ'], ['В', 'В']];
+            const configEmpty: FacetConfig = { id: 'E', length: 1 };
+            const configRegion: FacetConfig = { id: 'R', length: 2 };
+            const keySetsRegion = [['78'], ['7', '8']];
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                [
+                    'А002ВВ 78',
+                    [
+                        { config: configPrefix, keySets: [['А']] },
+                        { config: configNumber, keySets: keySetsNumber },
+                        { config: configSeries, keySets: keySetsSeries },
+                        { config: configEmpty, keySets: [[' ']] },
+                        { config: configRegion, keySets: keySetsRegion }
+                    ]
+                ]
+            ]);
             // noinspection NonAsciiCharacters
             const dictionary = {
                 'А': ['а', 'Александр', 'Анна', 'Андрей'],
@@ -352,7 +241,7 @@ describe('Generator', () => {
                 '78': ['семьдесят восемь'],
                 ' ': ['регион', 'пробел']
             };
-            const voiceovers = generator.generate(keySets, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, 3);
 
             expect(voiceovers).toEqual([
                 { name: 'А002ВВ 78', options: ['а два нуля два два вэ регион семьдесят восемь'] },

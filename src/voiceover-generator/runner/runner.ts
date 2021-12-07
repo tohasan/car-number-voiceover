@@ -6,12 +6,14 @@ import { FacetsGenerator } from '../facets-generator/facets-generator';
 import { Logger } from '../../common/utils/logger/logger';
 import { StatisticsReporter } from '../statistics-reporter/statistics-reporter';
 import { FileReader } from '../file-reader/file-reader';
+import { PatternParser } from '../pattern-parser/pattern-parser';
 
 export class Runner {
 
     private readonly cli = new GeneratorCli();
     private readonly carNumbersReader = new FileReader();
     private readonly dictionaryReader = new DictionaryReader();
+    private readonly patternParser = new PatternParser();
     private readonly facetsGenerator = new FacetsGenerator();
     private readonly generator = new Generator();
     private readonly statisticsReporter = new StatisticsReporter();
@@ -21,7 +23,8 @@ export class Runner {
     run(args: string[]): void {
         const startTime = Date.now();
 
-        const { input, dictionary, output, countPerNumber, statistics: shouldCalculateStats } = this.cli.parse(args);
+        const { input, pattern, dictionary, output } = this.cli.parse(args);
+        const { countPerNumber, statistics: shouldCalculateStats } = this.cli.parse(args);
 
         this.logger.log(`Reading the car numbers file '${input}'...`);
         const carNumbers = this.carNumbersReader.read(input);
@@ -32,12 +35,15 @@ export class Runner {
         const dictKeys = Object.keys(dict);
         this.logger.log(`Number of dictionary keys: ${dictKeys.length}`);
 
+        this.logger.log(`Parse the pattern '${pattern}'...`);
+        const facetConfigs = this.patternParser.parse(pattern);
+
         this.logger.log('Generating voiceovers...');
-        const keySets = this.facetsGenerator.generate(carNumbers, dictKeys);
-        const voiceovers = this.generator.generate(keySets, dict, countPerNumber);
+        const facetMap = this.facetsGenerator.generate(carNumbers, facetConfigs, dictKeys);
+        const voiceovers = this.generator.generate(facetMap, dict, countPerNumber);
 
         if (shouldCalculateStats) {
-            this.statisticsReporter.report(voiceovers, keySets, dict);
+            this.statisticsReporter.report(voiceovers, facetMap, dict);
         }
 
         this.exporter.export(output, voiceovers);

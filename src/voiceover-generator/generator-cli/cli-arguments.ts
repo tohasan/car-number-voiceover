@@ -5,7 +5,7 @@ export interface CliArguments {
     pattern: string;
     dictionary: Filename;
     output: Filename;
-    countPerNumber?: number;
+    countPerNumber: number;
     statistics: boolean;
     _: string[];
 }

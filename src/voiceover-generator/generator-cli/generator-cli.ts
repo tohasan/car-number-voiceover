@@ -7,7 +7,14 @@ export class GeneratorCli {
 
     parse(commandLineArgs: string[]): CliArguments {
         return yargs(hideBin(commandLineArgs))
-            .usage('Usage: $0 --input "<filename>" --dictionary "<filename>" [--output "<filename>"]')
+            .usage([
+                'Usage: $0',
+                '--input "<filename>"',
+                '--pattern "<pattern>"',
+                '--dictionary "<filename>"',
+                '--count-per-number <count-per-number>',
+                '[--output "<filename>"]'
+            ].join(' '))
             .epilogue('Copyright (c) tohasan, Voiceover Generator, 2021. All Rights Reserved.')
             .option('input', {
                 alias: 'i',
@@ -30,7 +37,7 @@ export class GeneratorCli {
                 description: 'A file to export generated voiceovers',
                 default: './output/voiceovers.csv'
             })
-            .option('count-per-number', {
+            .option('countPerNumber', {
                 alias: 'cpn',
                 type: 'number',
                 description: 'A number of voiceovers you want to generate per car number'
@@ -42,7 +49,7 @@ export class GeneratorCli {
                 default: false
             })
             .version(packageJson.version)
-            .demandOption(['input', 'pattern', 'dictionary'])
+            .demandOption(['input', 'pattern', 'dictionary', 'countPerNumber'])
             .showHelpOnFail(true)
             .parse() as CliArguments;
     }
