@@ -56,6 +56,28 @@ describe('Generator', () => {
             ] as Voiceover[]);
         });
 
+        // FIXME: Implement me
+        it.skip('should iterate unique combinations even if reached the limit of independent iteration', () => {
+            const config: FacetConfig = { id: 'N', length: 3 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['Н02', [{ config, keySets: [['Н', '0', '2']] }]]
+            ]);
+            // noinspection NonAsciiCharacters
+            const dictionary = {
+                'Н': ['н'],
+                '0': ['нуль', 'ноль'],
+                '2': ['два', 'двойка']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
+
+            expect(voiceovers).toEqual([
+                { name: 'Н02', options: ['н нуль два'] },
+                { name: 'Н02', options: ['н ноль двойка'] },
+                { name: 'Н02', options: ['н ноль два'] }
+            ] as Voiceover[]);
+        });
+
         it('should not generate different voiceovers for the same letter or digit for the same combination', () => {
             const config: FacetConfig = { id: 'N', length: 5 };
             const facetsMap = new Map<CarNumber, RealFacet[]>([
