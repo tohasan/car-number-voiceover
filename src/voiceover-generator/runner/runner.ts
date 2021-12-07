@@ -24,7 +24,7 @@ export class Runner {
         const startTime = Date.now();
 
         const { input, pattern, dictionary, output } = this.cli.parse(args);
-        const { countPerNumber, statistics: shouldCalculateStats } = this.cli.parse(args);
+        const { countPerNumber, statistics: shouldCalculateStats, quirk: isQuirkMode } = this.cli.parse(args);
 
         this.logger.log(`Reading the car numbers file '${input}'...`);
         const carNumbers = this.carNumbersReader.read(input);
@@ -40,7 +40,7 @@ export class Runner {
 
         this.logger.log('Generating voiceovers...');
         const facetMap = this.facetsGenerator.generate(carNumbers, facetConfigs, dictKeys);
-        const voiceovers = this.generator.generate(facetMap, dict, countPerNumber);
+        const voiceovers = this.generator.generate(facetMap, dict, { countPerNumber, isQuirkMode });
 
         if (shouldCalculateStats) {
             this.statisticsReporter.report(voiceovers, facetMap, dict);

@@ -74,5 +74,21 @@ describe('GeneratorCli', () => {
 
             expect(args.statistics).toEqual(true);
         });
+
+        it('should not activate the quirk mode by default', () => {
+            const args = cli.parse(requiredArgs);
+            expect(args.quirk).toEqual(false);
+        });
+
+        it('should parse the quirk flag', () => {
+            const cmdArgs = [
+                ...requiredArgs,
+                '--quirk'
+            ];
+
+            const args = cli.parse(cmdArgs);
+
+            expect(args.quirk).toEqual(true);
+        });
     });
 });

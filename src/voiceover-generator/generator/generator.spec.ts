@@ -7,6 +7,8 @@ import { FacetConfig } from '../pattern-parser/facet-config';
 describe('Generator', () => {
     let generator: Generator;
 
+    const defaultOptions = { countPerNumber: 3 };
+
     beforeEach(() => {
         generator = new Generator();
     });
@@ -25,7 +27,7 @@ describe('Generator', () => {
                 '1': ['один']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -46,7 +48,7 @@ describe('Generator', () => {
                 '2': ['два']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'Н02', options: ['н нуль два'] },
@@ -64,12 +66,29 @@ describe('Generator', () => {
                 '78': ['семьдесят восемь']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: '00078', options: ['нуль нуль нуль семьдесят восемь'] },
                 { name: '00078', options: ['ноль ноль ноль семьдесят восемь'] },
                 { name: '00078', options: ['зеро зеро зеро семьдесят восемь'] }
+            ] as Voiceover[]);
+        });
+
+        it('should use distinct value of the same key if the quick mode is enabled', () => {
+            const config: FacetConfig = { id: 'N', length: 5 };
+            const facetsMap = new Map<CarNumber, RealFacet[]>([
+                ['00078', [{ config, keySets: [['0', '0', '0', '78']] }]]
+            ]);
+            const dictionary = {
+                '0': ['нуль', 'ноль', 'зеро'],
+                '78': ['семьдесят восемь']
+            };
+
+            const voiceovers = generator.generate(facetsMap, dictionary, { countPerNumber: 3, isQuirkMode: true });
+
+            expect(voiceovers).toEqual([
+                { name: '00078', options: ['нуль ноль зеро семьдесят восемь'] }
             ] as Voiceover[]);
         });
 
@@ -87,7 +106,7 @@ describe('Generator', () => {
                 '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'М00', options: ['м два ноля'] },
@@ -111,7 +130,7 @@ describe('Generator', () => {
                 '1': ['один']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 8);
+            const voiceovers = generator.generate(facetsMap, dictionary, { countPerNumber: 8 });
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -140,7 +159,7 @@ describe('Generator', () => {
                 '2': ['два']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -167,7 +186,7 @@ describe('Generator', () => {
                 '2': ['два']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'М01', options: ['м нуль один'] },
@@ -194,7 +213,7 @@ describe('Generator', () => {
                 '00': ['два ноля', 'дубль ноль', 'дуплет нулей']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'Н00', options: ['эн два ноля'] },
@@ -242,7 +261,7 @@ describe('Generator', () => {
                 ' ': ['регион', 'пробел']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'А002ВВ 78', options: ['а два нуля два два вэ регион семьдесят восемь'] },
@@ -274,7 +293,7 @@ describe('Generator', () => {
                 'M': ['эм']
             };
 
-            const voiceovers = generator.generate(facetsMap, dictionary, 3);
+            const voiceovers = generator.generate(facetsMap, dictionary, defaultOptions);
 
             expect(voiceovers).toEqual([
                 { name: 'A021 MH', options: ['ноль один эм'] },

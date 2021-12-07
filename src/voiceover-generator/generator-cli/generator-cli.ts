@@ -48,6 +48,12 @@ export class GeneratorCli {
                 description: 'Calculate some statistics about utilization of the dictionary and generated voiceovers',
                 default: false
             })
+            .option('quirk', {
+                alias: 'q',
+                type: 'boolean',
+                description: 'Quirk mode when the same number can include distinct values of the same dictionary key',
+                default: false
+            })
             .version(packageJson.version)
             .demandOption(['input', 'pattern', 'dictionary', 'countPerNumber'])
             .showHelpOnFail(true)

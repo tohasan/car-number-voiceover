@@ -7,5 +7,6 @@ export interface CliArguments {
     output: Filename;
     countPerNumber: number;
     statistics: boolean;
+    quirk: boolean;
     _: string[];
 }

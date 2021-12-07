@@ -1,13 +1,14 @@
 import { Voiceover, VoiceoverKey, VoiceoverOption } from '../entities/voiceover';
 import { VoiceoverDictionary } from '../entities/voiceover-dictionary';
 import { RealFacet, RealFacetMap } from '../facets-generator/real-facet';
+import { GeneratingOptions } from './generating-options';
 
 export class Generator {
 
-    generate(facetMap: RealFacetMap, dictionary: VoiceoverDictionary, countPerNumber: number): Voiceover[] {
+    generate(facetMap: RealFacetMap, dictionary: VoiceoverDictionary, options: GeneratingOptions): Voiceover[] {
         const restDictionary = this.deepCopy(dictionary);
         return Array.from(facetMap.entries()).flatMap(([carNumber, facets]) => {
-            return this.generateRequestedCount(carNumber, facets, dictionary, restDictionary, countPerNumber);
+            return this.generateRequestedCount(carNumber, facets, dictionary, restDictionary, options);
         });
     }
 
@@ -16,10 +17,11 @@ export class Generator {
         facets: RealFacet[],
         dictionary: VoiceoverDictionary,
         restDictionary: VoiceoverDictionary,
-        requestedCount: number
+        generatingOptions: GeneratingOptions
     ): Voiceover[] {
+        const { countPerNumber, isQuirkMode } = generatingOptions;
         const options: VoiceoverOption[] = [];
-        while (options.length < requestedCount) {
+        while (options.length < countPerNumber) {
             const keysToShift = new Set<VoiceoverKey>();
             const disjointFacetOptions = facets.filter(facet => facet.keySets.length)
                 .flatMap(({ keySets }) => {
@@ -35,8 +37,11 @@ export class Generator {
                     }
 
                     return firstExistingKeySet.map(key => {
-                        keysToShift.add(key);
-                        return restDictionary[key][0];
+                        if (!isQuirkMode) {
+                            keysToShift.add(key);
+                            return restDictionary[key][0];
+                        }
+                        return restDictionary[key].shift();
                     });
                 });
 
